@@ -1,0 +1,1091 @@
+openapi: 3.1.0
+info:
+  title: BETON BRUT · Hotel Middleware API
+  version: 1.0.0
+  description: >
+    Единый контракт между приложениями гостя и персонала (PWA / Capacitor)
+    и системами отеля: 1С:Отель, 1С:СПА, iiko (iikoCloud), платёжный шлюз, push-шлюз (FCM / Web Push).
+
+    КОНВЕНЦИИ:
+    • Деньги — целые числа в КОПЕЙКАХ (169000 = 1 690 ₽). В демо-данных приложения для читаемости показаны рубли — до старта зафиксируйте один вариант.
+    • Даты/время — ISO 8601 с offset отеля (UTC+3): 2025-05-14T12:00:00+03:00.
+    • POST /orders и /orders/{id}/pay требуют заголовок Idempotency-Key (защита от двойного списания).
+    • Ошибки — формат { "error": { "code", "message", "details" } }.
+    • Пагинация курсорная: ?cursor&limit, ответ { items, nextCursor }.
+servers:
+  - url: https://api.betonbrut.app/v1
+    description: Продакшен
+  - url: http://localhost:3000/v1
+    description: Локальная разработка
+tags:
+  - { name: auth,   description: Токены и сессии }
+  - { name: guest,  description: Экраны гостя }
+  - { name: spa,    description: Спа · 1С:СПА }
+  - { name: staff,  description: Панель персонала }
+  - { name: admin,  description: CMS · роль staff:admin }
+security:
+  - bearerAuth: []
+
+paths:
+  # ---------- AUTH ----------
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: Вход (гость — телефон+пароль или SMS-OTP; персонал — логин+пароль)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/GuestLogin'
+                - $ref: '#/components/schemas/StaffLogin'
+            examples:
+              guest:
+                value: { phone: "+79001234567", password: "4121" }
+              staff:
+                value: { login: "admin", password: "brut2024" }
+      responses:
+        '200':
+          description: Пара токенов + профиль
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accessToken, refreshToken, expiresIn, role, profile]
+                properties:
+                  accessToken:  { type: string, description: JWT RS256, TTL 15 мин }
+                  refreshToken: { type: string }
+                  expiresIn:    { type: integer, example: 900 }
+                  role:         { type: string, enum: [guest, staff] }
+                  profile:      { $ref: '#/components/schemas/Guest' }
+        '401': { $ref: '#/components/responses/Error401' }
+        '429': { $ref: '#/components/responses/Error429' }
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      operationId: refreshToken
+      summary: Обновить access-токен (refresh ротируется)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties: { refreshToken: { type: string } }
+      responses:
+        '200':
+          description: Новая пара токенов
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+        '401': { $ref: '#/components/responses/Error401' }
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      operationId: logout
+      summary: Выйти (инвалидация refresh текущего устройства)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties: { refreshToken: { type: string } }
+      responses:
+        '204': { description: Сессия завершена }
+
+  # ---------- ГОСТЬ: МЕНЮ И ЗАКАЗЫ ----------
+  /menu:
+    get:
+      tags: [guest]
+      operationId: getMenu
+      summary: Меню из iiko (цены, вес, теги, стоп-лист)
+      responses:
+        '200':
+          description: Категории и позиции
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MenuResponse' }
+
+  /menu/items/{id}:
+    put:
+      tags: [admin]
+      operationId: updateMenuItem
+      summary: Цена, категория, стоп-лист позиции (PUT → кэш middleware + iiko)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:      { type: string }
+                price:     { $ref: '#/components/schemas/Money' }
+                category:  { type: string }
+                stopList:  { type: boolean }
+      responses:
+        '200':
+          description: Обновлённая позиция
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MenuItem' }
+        '403': { $ref: '#/components/responses/Error403' }
+
+  /menu/sync:
+    post:
+      tags: [admin]
+      operationId: syncMenu
+      summary: Принудительный ре-синк номенклатуры iiko
+      responses:
+        '202': { description: Синхронизация запущена }
+
+  /orders:
+    post:
+      tags: [guest]
+      operationId: createOrder
+      summary: Создать заказ в номер → iiko
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NewOrderRequest' }
+            example:
+              items:
+                - { menuId: "iiko-11453", qty: 2 }
+                - { menuId: "iiko-11500", qty: 1 }
+              when: asap
+              note: "без лука"
+              tip: 20000
+              promoCode: "BB150"
+              redeemPoints: 0
+      responses:
+        '201':
+          description: Заказ принят сервером и передан в iiko
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '400': { $ref: '#/components/responses/Error400' }
+        '409': { description: "Позиция в стоп-листе (error.code = MENU_STOP_LIST)" }
+    get:
+      tags: [guest]
+      operationId: listOrders
+      summary: Мои заказы (активные или история проживания)
+      parameters:
+        - { name: active, in: query, schema: { type: boolean } }
+        - { $ref: '#/components/parameters/Cursor' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200':
+          description: Список заказов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:      { type: array, items: { $ref: '#/components/schemas/Order' } }
+                  nextCursor: { type: string, nullable: true }
+
+  /orders/{id}:
+    get:
+      tags: [guest]
+      operationId: getOrder
+      summary: Заказ со статусом и ETA
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200':
+          description: Заказ
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '404': { $ref: '#/components/responses/Error404' }
+
+  /orders/{id}/pay:
+    post:
+      tags: [guest]
+      operationId: payOrder
+      summary: Оплата (метод, чаевые, промокод, баллы)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PayRequest' }
+      responses:
+        '200':
+          description: Платёж проведён / авторизован
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaymentResult' }
+        '402': { description: "Платёж отклонён шлюзом (error.code = PSP_DECLINED)" }
+        '409': { description: "Заказ уже оплачен" }
+
+  /orders/{id}/cancel:
+    patch:
+      tags: [guest]
+      operationId: cancelOrder
+      summary: Отмена заказа (до статуса cooking)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200':
+          description: Отменён
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+        '409': { description: "Уже готовится (error.code = TOO_LATE_TO_CANCEL)" }
+
+  # ---------- ГОСТЬ: СПА, СЕРВИСЫ, ПРОЧЕЕ ----------
+  /spa/services:
+    get:
+      tags: [spa]
+      operationId: spaServices
+      summary: Процедуры + персональная скидка уровня лояльности
+      responses:
+        '200':
+          description: Список процедур
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/SpaService' } }
+
+  /spa/availability:
+    get:
+      tags: [spa]
+      operationId: spaAvailability
+      summary: Свободные слоты из сетки 1С:СПА
+      parameters:
+        - { name: serviceId, in: query, required: true, schema: { type: string } }
+        - { name: date, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: Слоты на дату
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:  { type: string, format: date }
+                  slots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:      { type: string, example: "15:00" }
+                        available: { type: boolean }
+
+  /spa/bookings:
+    post:
+      tags: [spa]
+      operationId: createSpaBooking
+      summary: Запись на процедуру
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SpaBookingRequest' }
+      responses:
+        '201':
+          description: Записана (администратору СПА уходит задача)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SpaBooking' }
+        '409': { description: "Слот занят" }
+
+  /spa/bookings/{id}:
+    delete:
+      tags: [spa]
+      operationId: cancelSpaBooking
+      summary: Отмена (бесплатно раньше чем за 2 часа)
+      parameters: [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses:
+        '204': { description: Отменена }
+        '409': { description: "Меньше 2 часов до сеанса" }
+
+  /requests:
+    post:
+      tags: [guest]
+      operationId: createServiceRequest
+      summary: Заявка → 1С:Отель (уборка, DND, поздний выезд, трансфер, принадлежности)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type:
+                  type: string
+                  enum: [cleaning, dnd, late_checkout, taxi, amenities]
+                items:   { type: array, items: { type: string }, description: "для amenities" }
+                comment: { type: string }
+      responses:
+        '201':
+          description: Заявка создана и доставлена в 1С
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:     { type: string }
+                  status: { type: string, enum: [new, in_progress, done] }
+
+  /news:
+    get:
+      tags: [guest]
+      operationId: getNews
+      summary: Афиша и новости отеля
+      responses:
+        '200':
+          description: Список событий
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/NewsItem' } }
+    post:
+      tags: [admin]
+      operationId: createNews
+      summary: Опубликовать событие (триггерит push news.published)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, date]
+              properties:
+                title: { type: string }
+                body:  { type: string }
+                date:  { type: string, format: date }
+                tag:   { type: string }
+      responses:
+        '201':
+          description: Опубликовано
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NewsItem' }
+
+  /me:
+    get:
+      tags: [guest]
+      operationId: getMe
+      summary: Профиль: проживание из 1С, тариф, ключ, лояльность
+      responses:
+        '200':
+          description: Профиль гостя
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Guest' }
+
+  /me/loyalty/tx:
+    get:
+      tags: [guest]
+      operationId: loyaltyTx
+      summary: История баллов (курсорная пагинация)
+      parameters:
+        - { $ref: '#/components/parameters/Cursor' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200':
+          description: Транзакции
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:      { type: array, items: { $ref: '#/components/schemas/LoyaltyTx' } }
+                  nextCursor: { type: string, nullable: true }
+
+  /me/push-settings:
+    put:
+      tags: [guest]
+      operationId: setPushSettings
+      summary: Категории пушей
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PushSettings' }
+      responses:
+        '200': { description: Сохранено }
+
+  /chat/messages:
+    post:
+      tags: [guest]
+      operationId: sendChatMessage
+      summary: Сообщение ресепшену (live-канал — WSS /v1/chat/ws)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties: { text: { type: string, maxLength: 2000 } }
+      responses:
+        '202':
+          description: Принято
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messageId: { type: string }
+                  threadId:  { type: string }
+
+  # ---------- ПЕРСОНАЛ ----------
+  /staff/dashboard:
+    get:
+      tags: [staff]
+      operationId: staffDashboard
+      summary: Загрузка, выручка F&B/спа, чаевые, активные заявки
+      responses:
+        '200':
+          description: Сводка смены
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  occupancyPct: { type: integer, example: 86 }
+                  roomsSold:    { type: integer, example: 103 }
+                  roomsTotal:   { type: integer, example: 120 }
+                  revenue:
+                    type: object
+                    properties:
+                      fb:   { $ref: '#/components/schemas/Money' }
+                      spa:  { $ref: '#/components/schemas/Money' }
+                      tips: { $ref: '#/components/schemas/Money' }
+                  activeRequests: { type: integer }
+
+  /bookings:
+    get:
+      tags: [staff]
+      operationId: listBookings
+      summary: Заезды/выезды дня из 1С:Отель
+      parameters:
+        - { name: date, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: Брони дня
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Stay' } }
+
+  /bookings/{id}/checkin:
+    post:
+      tags: [staff]
+      operationId: checkin
+      summary: Заселение (middleware инициирует выпуск цифрового ключа)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200':
+          description: Заселён, ключ выпущен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookingId:    { type: string }
+                  status:       { type: string, enum: [checked_in] }
+                  keyIssued:    { type: boolean }
+                  keyExpiresAt: { type: string, format: date-time }
+
+  /bookings/{id}/checkout:
+    post:
+      tags: [staff]
+      operationId: checkout
+      summary: Выезд (фолио, аннуляция ключа в приложении гостя)
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200':
+          description: Выезд оформлен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookingId:    { type: string }
+                  status:       { type: string, enum: [checked_out] }
+                  folioBalance: { $ref: '#/components/schemas/Money' }
+        '409': { description: "Есть неоплаченный баланс фолио" }
+
+  /kitchen/orders:
+    get:
+      tags: [staff]
+      operationId: kitchenQueue
+      summary: Живая очередь кухни (iiko + заказы приложения)
+      responses:
+        '200':
+          description: Активные заказы
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Order' } }
+
+  /kitchen/orders/{id}/status:
+    patch:
+      tags: [staff]
+      operationId: setKitchenStatus
+      summary: accepted → cooking → delivering → done
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [accepted, cooking, delivering, done]
+      responses:
+        '200':
+          description: Статус изменён, пуш гостю отправлен
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+
+  /crm/guests:
+    get:
+      tags: [staff]
+      operationId: crmSearch
+      summary: Поиск по базе гостей
+      parameters:
+        - { name: q, in: query, schema: { type: string }, description: "имя или номер" }
+      responses:
+        '200':
+          description: Совпадения
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/CrmGuestSummary' } }
+
+  /crm/guests/{id}:
+    get:
+      tags: [staff]
+      operationId: crmGuest
+      summary: Полный профиль: визиты, LTV, топ заказов, предпочтения, заметки
+      parameters: [{ name: id, in: path, required: true, schema: { type: integer } }]
+      responses:
+        '200':
+          description: Профиль
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CrmGuestFull' }
+
+  /crm/guests/{id}/notes:
+    post:
+      tags: [staff]
+      operationId: addCrmNote
+      summary: Заметка персонала (в audit_log пишется автор)
+      parameters: [{ name: id, in: path, required: true, schema: { type: integer } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties: { text: { type: string, maxLength: 500 } }
+      responses:
+        '201': { description: Сохранена }
+
+  /crm/guests/{id}/compliment:
+    post:
+      tags: [staff]
+      operationId: sendCompliment
+      summary: Комплимент → задача кухне (iiko) и/или горничной (1С)
+      parameters: [{ name: id, in: path, required: true, schema: { type: integer } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind]
+              properties:
+                kind:    { type: string, enum: [chef, spa, housekeeping] }
+                message: { type: string }
+      responses:
+        '202':
+          description: Задачи созданы
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  taskIds: { type: array, items: { type: string } }
+
+  # ---------- АДМИН ----------
+  /promos:
+    post:
+      tags: [admin]
+      operationId: createPromo
+      summary: Создать промокод
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Promo' }
+      responses:
+        '201':
+          description: Создан и активен
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Promo' }
+
+  /promos/{code}:
+    patch:
+      tags: [admin]
+      operationId: togglePromo
+      summary: Включить/выключить промокод
+      parameters: [{ name: code, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [active]
+              properties: { active: { type: boolean } }
+      responses:
+        '200': { description: Изменено }
+
+  /spa/services/{id}:
+    put:
+      tags: [admin]
+      operationId: updateSpaService
+      summary: Цена/стоп процедуры → 1С:СПА
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:    { $ref: '#/components/schemas/Money' }
+                stopList: { type: boolean }
+      responses:
+        '200':
+          description: Обновлено
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SpaService' }
+
+  /analytics/summary:
+    get:
+      tags: [admin]
+      operationId: analyticsSummary
+      summary: Выгрузка за период для BI
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to,   in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Агрегаты по дням (выручка, заказы, LTV-когорты) }
+
+# ---------- WEBHOOKS (middleware их ПРИНИМАЕТ) ----------
+webhooks:
+  iikoEvent:
+    post:
+      summary: iiko → middleware · заказ/меню/доставка
+      description: iikoTransport вызывает этот эндпоинт при смене статуса доставки; middleware рассылает пуш order.status_changed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event, orderId, status, ts]
+              properties:
+                event:      { type: string, enum: [order.status_changed, menu.updated, delivery.canceled] }
+                externalId: { type: string, description: id заказа в iiko }
+                orderId:    { type: string, description: id заказа в middleware }
+                status:     { type: string }
+                etaMin:     { type: integer }
+                ts:         { type: string, format: date-time }
+      responses:
+        '200': { description: Событие принято }
+  hotelStayChanged:
+    post:
+      summary: 1С:Отель → middleware · брони, заселение/выезд, фолио, ключи
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event, bookingId, ts]
+              properties:
+                event:
+                  type: string
+                  enum: [booking.created, booking.changed, stay.checked_in, stay.checked_out, folio.updated, key.issued, key.revoked]
+                bookingId: { type: string }
+                payload:   { type: object, additionalProperties: true }
+                ts:        { type: string, format: date-time }
+      responses:
+        '200': { description: Событие принято }
+  pspPayment:
+    post:
+      summary: Платёжный шлюз → middleware · succeeded / failed / refunded
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event, paymentId, ts]
+              properties:
+                event:     { type: string, enum: [payment.succeeded, payment.failed, payment.refunded] }
+                paymentId: { type: string }
+                orderId:   { type: string }
+                amount:    { $ref: '#/components/schemas/Money' }
+                ts:        { type: string, format: date-time }
+      responses:
+        '200': { description: Событие принято }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT RS256. Роли в claim role: guest | staff:front | staff:kitchen | staff:spa | staff:admin
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+      description: Повтор запроса с тем же ключом возвращает тот же результат, дубликата не создаёт.
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, default: 50, maximum: 100 }
+
+  responses:
+    Error400: { description: "Невалидный запрос", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Error401: { description: "Не авторизован / токен истёк", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Error403: { description: "Нет прав (роль в JWT)", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Error404: { description: "Не найдено", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Error429: { description: "Лимит запросов (Retry-After)", content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  schemas:
+    Money:
+      type: integer
+      description: Сумма в копейках. 169000 = 1 690 ₽.
+      example: 169000
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:    { type: string, example: MENU_STOP_LIST }
+            message: { type: string }
+            details: { type: array, items: { type: object } }
+
+    TokenPair:
+      type: object
+      required: [accessToken, refreshToken, expiresIn]
+      properties:
+        accessToken:  { type: string }
+        refreshToken: { type: string }
+        expiresIn:    { type: integer }
+
+    GuestLogin:
+      type: object
+      required: [phone, password]
+      properties:
+        phone:    { type: string, example: "+79001234567" }
+        password: { type: string }
+        otpCode:  { type: string, description: "альтернатива паролю — код из SMS" }
+
+    StaffLogin:
+      type: object
+      required: [login, password]
+      properties:
+        login:    { type: string }
+        password: { type: string }
+
+    Stay:
+      type: object
+      description: Проживание из 1С:Отель
+      properties:
+        id:           { type: string, example: "1c-bk-8841" }
+        room:         { type: string, example: "412" }
+        guestName:    { type: string }
+        checkIn:      { type: string, format: date-time }
+        checkOut:     { type: string, format: date-time }
+        nights:       { type: integer }
+        ratePlan:     { type: string, example: "Brut Standard" }
+        folioBalance: { $ref: '#/components/schemas/Money' }
+        status:       { type: string, enum: [booked, checked_in, checked_out] }
+        source:       { type: string, enum: [1C_Hotel, APP] }
+
+    Guest:
+      type: object
+      properties:
+        id:        { type: string }
+        name:      { type: string }
+        phone:     { type: string }
+        room:      { type: string }
+        ratePlan:  { type: string }
+        tier:      { type: string, enum: [STANDARD, BLACK, TITAN] }
+        points:    { type: integer }
+        stay:      { $ref: '#/components/schemas/Stay' }
+        digitalKey:
+          type: object
+          properties:
+            token:      { type: string, description: подписанный токен замковой системы }
+            expiresAt:  { type: string, format: date-time }
+
+    MenuItem:
+      type: object
+      properties:
+        id:         { type: string }
+        iikoId:     { type: string }
+        category:   { type: string, example: "Основное" }
+        name:       { type: string }
+        description:{ type: string }
+        price:      { $ref: '#/components/schemas/Money' }
+        weight:     { type: string, example: "420 г" }
+        tags:       { type: array, items: { type: string, enum: [hit, veg, spicy, alcohol] } }
+        stopList:   { type: boolean }
+
+    MenuResponse:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              icon: { type: string }
+        items:      { type: array, items: { $ref: '#/components/schemas/MenuItem' } }
+        syncedAt:   { type: string, format: date-time }
+
+    NewOrderRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [menuId, qty]
+            properties:
+              menuId: { type: string }
+              qty:    { type: integer, minimum: 1, maximum: 20 }
+        when:         { type: string, enum: [asap, scheduled], default: asap }
+        scheduledAt:  { type: string, format: date-time, description: "обязательно при when=scheduled" }
+        note:         { type: string, maxLength: 300 }
+        tip:          { $ref: '#/components/schemas/Money' }
+        promoCode:    { type: string }
+        redeemPoints: { type: integer, minimum: 0 }
+
+    OrderTotals:
+      type: object
+      properties:
+        items:  { $ref: '#/components/schemas/Money' }
+        service:{ $ref: '#/components/schemas/Money', description: "сервисный сбор 10%" }
+        tip:    { $ref: '#/components/schemas/Money' }
+        promo:  { $ref: '#/components/schemas/Money', description: "скидка промокода (отрицательная)" }
+        points: { $ref: '#/components/schemas/Money', description: "списание баллами (отрицательное)" }
+        grand:  { $ref: '#/components/schemas/Money' }
+
+    Order:
+      type: object
+      properties:
+        id:          { type: string, example: "ord_1043" }
+        number:      { type: string, example: "О-1043" }
+        room:        { type: string }
+        status:      { type: string, enum: [accepted, cooking, delivering, done, canceled] }
+        etaMin:      { type: integer }
+        when:        { type: string }
+        note:        { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              menuId: { type: string }
+              name:   { type: string }
+              qty:    { type: integer }
+              price:  { $ref: '#/components/schemas/Money' }
+        totals:      { $ref: '#/components/schemas/OrderTotals' }
+        iikoOrderId: { type: string, nullable: true }
+        createdAt:   { type: string, format: date-time }
+
+    PayRequest:
+      type: object
+      required: [method]
+      properties:
+        method:       { type: string, enum: [room, card] }
+        tip:          { $ref: '#/components/schemas/Money' }
+        promoCode:    { type: string }
+        redeemPoints: { type: integer, minimum: 0 }
+
+    PaymentResult:
+      type: object
+      properties:
+        paymentId:    { type: string }
+        status:       { type: string, enum: [authorized, captured, failed] }
+        totals:       { $ref: '#/components/schemas/OrderTotals' }
+        pointsEarned: { type: integer }
+        balance:      { type: integer }
+
+    SpaService:
+      type: object
+      properties:
+        id:           { type: string, example: "sp1" }
+        name:         { type: string }
+        durationMin:  { type: integer }
+        price:        { $ref: '#/components/schemas/Money' }
+        discountPct:  { type: integer, description: "персональная скидка уровня" }
+        priceForGuest:{ $ref: '#/components/schemas/Money' }
+        description:  { type: string }
+        stopList:     { type: boolean }
+
+    SpaBookingRequest:
+      type: object
+      required: [serviceId, date, time, pay]
+      properties:
+        serviceId: { type: string }
+        date:      { type: string, format: date }
+        time:      { type: string, example: "15:00" }
+        pay:       { type: string, enum: [room, onsite] }
+
+    SpaBooking:
+      type: object
+      properties:
+        id:          { type: integer, example: 104 }
+        serviceId:   { type: string }
+        serviceName: { type: string }
+        date:        { type: string, format: date }
+        time:        { type: string }
+        durationMin: { type: integer }
+        price:       { $ref: '#/components/schemas/Money' }
+        pay:         { type: string, enum: [room, onsite] }
+        status:      { type: string, enum: [booked, confirmed, done, canceled] }
+
+    NewsItem:
+      type: object
+      properties:
+        id:    { type: string }
+        date:  { type: string, format: date }
+        title: { type: string }
+        body:  { type: string }
+        tag:   { type: string }
+        icon:  { type: string }
+
+    PushSettings:
+      type: object
+      properties:
+        orders:  { type: boolean, default: true }
+        spa:     { type: boolean, default: true }
+        news:    { type: boolean, default: true }
+        loyalty: { type: boolean, default: true }
+
+    LoyaltyTx:
+      type: object
+      properties:
+        id:           { type: string }
+        ts:           { type: string, format: date-time }
+        type:         { type: string, enum: [earn, redeem, bonus, adjustment] }
+        delta:        { type: integer }
+        balanceAfter: { type: integer }
+        description:  { type: string }
+        orderId:      { type: string, nullable: true }
+
+    CrmGuestSummary:
+      type: object
+      properties:
+        id:     { type: integer }
+        name:   { type: string }
+        room:   { type: string }
+        tier:   { type: string }
+        points: { type: integer }
+        visits: { type: integer }
+        ltv:    { $ref: '#/components/schemas/Money' }
+        vip:    { type: boolean }
+
+    CrmGuestFull:
+      allOf:
+        - $ref: '#/components/schemas/CrmGuestSummary'
+        - type: object
+          properties:
+            since:     { type: string, example: "2023" }
+            avgCheck:  { $ref: '#/components/schemas/Money' }
+            spaVisits: { type: integer }
+            lastSpa:   { type: string }
+            stays:
+              type: array
+              items:
+                type: object
+                properties:
+                  period: { type: string, example: "12–19 окт 2024" }
+                  nights: { type: integer }
+                  room:   { type: string }
+                  spend:  { $ref: '#/components/schemas/Money' }
+            topItems:
+              type: array
+              items:
+                type: object
+                properties:
+                  name: { type: string }
+                  qty:  { type: integer }
+            prefs:     { type: array, items: { type: string } }
+            allergies: { type: string }
+            notes:
+              type: array
+              items:
+                type: object
+                properties:
+                  date: { type: string }
+                  by:   { type: string }
+                  text: { type: string }
+
+    Promo:
+      type: object
+      required: [code, type, value]
+      properties:
+        code:  { type: string, example: "BB150" }
+        type:  { type: string, enum: [fixed, pct] }
+        value: { type: integer, description: "fixed — копейки; pct — проценты" }
+        active:{ type: boolean, default: true }
+        note:  { type: string }
