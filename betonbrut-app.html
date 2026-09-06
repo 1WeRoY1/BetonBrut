@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#161512">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BETON BRUT">
+<title>BETON BRUT · Приложение отеля</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;900&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+ --bg:#CBC7BF;--panel:#E5E2DB;--panel2:#DAD6CE;--ink:#161512;--mut:#6E6960;
+ --acc:#FF4B00;--acc-ink:#161512;--line:#161512;--shadow:rgba(22,21,18,.85);
+ --dk:#161512;--dk-fg:#E5E2DB;--dk-line:#3a3831;--dk-mut:#8f8b83;
+ --grain:.05;--wm:rgba(22,21,18,.05);--f-disp:'Unbounded',sans-serif;
+}
+html[data-theme=night]{
+ --bg:#131210;--panel:#1B1A17;--panel2:#24221D;--ink:#EDE8DD;--mut:#8B857A;
+ --acc:#FF5A1F;--acc-ink:#131210;--line:#4A463D;--shadow:#000;
+ --dk:#E8E3D6;--dk-fg:#141310;--dk-line:#9A9488;--dk-mut:#6E6960;
+ --grain:.07;--wm:rgba(237,232,221,.05);
+}
+html[data-theme=linen]{
+ --bg:#F1EBDF;--panel:#FAF6EC;--panel2:#E9E0CE;--ink:#2B2016;--mut:#8A7B67;
+ --acc:#C24D2C;--acc-ink:#FAF6EC;--line:#2B2016;--shadow:rgba(43,32,22,.75);
+ --dk:#2B2016;--dk-fg:#F1EBDF;--dk-line:#52422F;--dk-mut:#B3A48F;
+ --grain:.04;--wm:rgba(43,32,22,.05);--f-disp:'Playfair Display',serif;
+}
+html[data-theme=heritage]{
+ --bg:#E9E3D3;--panel:#F4F0E4;--panel2:#DDD6C2;--ink:#1C3A2D;--mut:#6C7A6C;
+ --acc:#93272C;--acc-ink:#F4F0E4;--line:#1C3A2D;--shadow:rgba(28,58,45,.75);
+ --dk:#1C3A2D;--dk-fg:#E9E3D3;--dk-line:#3E5C4C;--dk-mut:#9FAF9F;
+ --grain:.05;--wm:rgba(28,58,45,.06);--f-disp:'Playfair Display',serif;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Golos Text',sans-serif;-webkit-font-smoothing:antialiased}
+body,body .blk,header,nav.tabs{transition:background-color .3s,border-color .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;z-index:2000;pointer-events:none;opacity:var(--grain);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
+::selection{background:var(--acc);color:var(--acc-ink)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--ink);border:2px solid var(--bg)}
+.mono{font-family:'JetBrains Mono',monospace}.disp{font-family:var(--f-disp)}
+.lbl{font:600 10px 'JetBrains Mono';letter-spacing:1.8px;text-transform:uppercase;color:var(--mut)}
+.lbl.inv{color:var(--dk-mut)}
+body.nolog header{display:none}
+header{position:sticky;top:0;z-index:80;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:stretch;height:58px}
+.logo{display:flex;align-items:center;gap:10px;padding:0 16px;border-right:1px solid var(--line);flex-shrink:0}
+.logo .mark{width:26px;height:26px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:900 12px var(--f-disp)}
+.logo .name{font:800 14px var(--f-disp);letter-spacing:.4px;line-height:1}
+.logo .sub{font:500 8px 'JetBrains Mono';color:var(--mut);letter-spacing:2.4px;margin-top:3px}
+nav.tabs{display:flex;flex:1;overflow-x:auto}
+.tab{position:relative;display:flex;align-items:center;gap:7px;padding:0 13px;border-right:1px solid var(--line);font:600 11px 'Golos Text';letter-spacing:1.1px;text-transform:uppercase;cursor:pointer;color:var(--mut);white-space:nowrap;transition:.15s}
+.tab svg{width:14px;height:14px}
+.tab:hover{color:var(--ink);background:var(--panel2)}
+.tab.act{background:var(--ink);color:var(--bg)}
+.tab.act::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--acc)}
+.hr{margin-left:auto;display:flex;align-items:stretch;flex-shrink:0}
+.sync{display:flex;align-items:center;gap:7px;padding:0 13px;border-left:1px solid var(--line);font:500 10px 'JetBrains Mono';letter-spacing:.5px;color:var(--mut)}
+.dot{width:7px;height:7px;background:var(--acc);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+#clock{display:flex;align-items:center;padding:0 14px;border-left:1px solid var(--line);font:500 13px 'JetBrains Mono'}
+.iconbtn{width:48px;display:flex;align-items:center;justify-content:center;border-left:1px solid var(--line);cursor:pointer;position:relative;background:none;color:var(--ink)}
+.iconbtn:hover{background:var(--panel2)}
+.iconbtn svg{width:17px;height:17px}
+.badge{position:absolute;top:9px;right:9px;background:var(--acc);color:var(--acc-ink);font:700 9px 'JetBrains Mono';min-width:15px;height:15px;padding:0 3px;display:grid;place-items:center}
+.usr{display:flex;align-items:center;gap:9px;padding:0 13px;border-left:1px solid var(--line);cursor:pointer}
+.usr .av{width:28px;height:28px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:800 10px var(--f-disp);flex-shrink:0}
+.usr .nm{font:600 11px 'Golos Text';line-height:1.15}
+.usr .rl{font:500 8px 'JetBrains Mono';letter-spacing:1.4px;color:var(--mut);margin-top:1px}
+main{max-width:1340px;margin:0 auto;padding:26px 22px 90px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+main.fade{animation:fadeUp .3s ease}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}
+.blk{background:var(--panel);border:1px solid var(--line)}
+.blk.dark{background:var(--dk);color:var(--dk-fg)}
+.blk.dark .lbl{color:var(--dk-mut)}
+.bh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 15px;border-bottom:1px solid var(--line)}
+.blk.dark .bh{border-color:var(--dk-line)}
+.bp{padding:16px 15px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:var(--ink);color:var(--bg);border:1px solid var(--ink);font:600 11px 'Golos Text';letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.15s}
+.btn svg{width:14px;height:14px}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--shadow)}
+.btn:active{transform:none;box-shadow:none}
+.btn.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--bg);box-shadow:none;transform:none}
+.blk.dark .btn{background:transparent;color:var(--dk-fg);border:1px solid var(--dk-fg)}
+.blk.dark .btn:hover{background:var(--dk-fg);color:var(--dk);box-shadow:none;transform:none}
+.blk.dark .btn.acc{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.blk.dark .btn.acc:hover{background:var(--acc);color:var(--acc-ink)}
+.btn.sm{padding:6px 10px;font-size:10px}
+.btn:disabled{opacity:.35;pointer-events:none}
+.chip{border:1px solid var(--ink);padding:8px 13px;font:600 11px 'Golos Text';letter-spacing:.6px;cursor:pointer;background:transparent;transition:.15s}
+.chip:hover{background:var(--panel2)}
+.chip.on{background:var(--ink);color:var(--bg)}
+.tag{display:inline-flex;align-items:center;gap:5px;font:700 9px 'JetBrains Mono';letter-spacing:1.2px;padding:4px 7px;border:1px solid var(--ink);text-transform:uppercase;white-space:nowrap}
+.tag.acc{background:var(--acc);color:var(--acc-ink)}
+.tag.fill{background:var(--ink);color:var(--bg)}
+.tag.dim{color:var(--mut);border-color:var(--mut)}
+.blk.dark .tag.dim{color:var(--dk-mut);border-color:var(--dk-mut)}
+.row{display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.row:hover{background:var(--panel2)}
+.blk.dark .row:hover{background:transparent}
+.row .grow{flex:1;min-width:0}
+.row .ttl{font:600 14.5px 'Golos Text'}
+.row .sub{font-size:12px;color:var(--mut);margin-top:2px}
+.row svg.ic{width:17px;height:17px;flex-shrink:0}
+.num{font:700 15px var(--f-disp)}
+.track{display:flex;gap:4px;flex:1;max-width:150px}
+.track i{height:7px;flex:1;border:1px solid var(--ink)}
+.track i.f{background:var(--ink)}
+.track i.c{background:var(--acc);border-color:var(--ink)}
+.bar{height:15px;border:1px solid var(--line);background:var(--panel2);position:relative;flex:1}
+.bar i{position:absolute;top:0;left:0;bottom:0;background:var(--ink)}
+.bar i.acc{background:var(--acc)}
+.hbar{display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:center;padding:7px 0;font-size:12.5px}
+.hbar .v{font:700 12px 'JetBrains Mono';text-align:right}
+.hbar .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.mrow:last-child{border-bottom:none}
+.mrow.stoprow{opacity:.45}
+.mrow .idx{font:500 11px 'JetBrains Mono';color:var(--mut);width:22px;flex-shrink:0}
+.mrow .nm{font:600 16px 'Golos Text'}
+.mrow .ds{font-size:12.5px;color:var(--mut);margin-top:2px}
+.mrow .pr{font:700 15px var(--f-disp);white-space:nowrap}
+.mrow .w{font:500 10px 'JetBrains Mono';color:var(--mut);white-space:nowrap}
+.qc{display:flex;align-items:center;border:1px solid var(--ink)}
+.qc button{width:27px;height:27px;background:var(--ink);color:var(--bg);border:none;cursor:pointer;display:grid;place-items:center}
+.qc button:hover{background:var(--acc);color:var(--acc-ink)}
+.qc span{width:30px;text-align:center;font:700 12px 'JetBrains Mono'}
+.segs{display:flex;flex-wrap:wrap;border:1px solid var(--line);width:fit-content}
+.segs .chip{border:none;border-right:1px solid var(--line)}
+input[type=text],input[type=tel],input[type=password],input[type=time],input[type=number],textarea,select{background:var(--panel2);border:1px solid var(--line);padding:10px 12px;font:500 13px 'Golos Text';color:var(--ink);width:100%;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--acc)}
+.tgl{width:46px;height:24px;border:1px solid var(--ink);position:relative;cursor:pointer;background:var(--panel2);flex-shrink:0}
+.tgl i{position:absolute;top:2px;left:2px;width:18px;height:18px;background:var(--ink);transition:.2s}
+.tgl.on{background:var(--acc)}.tgl.on i{left:24px}
+#toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1500;display:flex;flex-direction:column;gap:8px;align-items:center;width:max-content;max-width:92vw}
+.toast{background:var(--dk);color:var(--dk-fg);padding:12px 18px;border-left:3px solid var(--acc);font:500 13px 'Golos Text';display:flex;gap:10px;align-items:center;animation:tin .25s;max-width:92vw}
+.toast svg{width:15px;height:15px;color:var(--acc);flex-shrink:0}
+@keyframes tin{from{transform:translateY(16px);opacity:0}}
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;opacity:0;pointer-events:none;transition:.25s}
+.ovl.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-460px;width:440px;max-width:100vw;height:100vh;height:100dvh;background:var(--panel);border-left:1px solid var(--line);z-index:1100;transition:right .3s;display:flex;flex-direction:column}
+.drawer.open{right:0}
+#cartbar{position:fixed;right:22px;bottom:22px;z-index:900;display:none}
+#cartbar.on{display:block}
+.modal{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);padding:20px}
+.modal.on{display:flex}
+.kpi{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr}
+.kpi>div{padding:16px 18px;border-left:1px solid var(--line)}
+.kpi>div:first-child{border-left:none}
+.kpi .v{font:700 30px var(--f-disp);margin:6px 0 2px}
+table.tb{width:100%;border-collapse:collapse;font-size:13px}
+table.tb th{font:600 9.5px 'JetBrains Mono';letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+table.tb td{padding:11px 14px;border-bottom:1px solid var(--line);border-bottom-color:color-mix(in srgb,var(--ink) 22%,transparent);vertical-align:middle}
+table.tb tr:hover td{background:var(--panel2)}
+table.tb tr:last-child td{border-bottom:none}
+.greet h1{font:700 clamp(30px,4.6vw,50px)/1.08 var(--f-disp);margin-top:8px}
+.greet h1 em{font-style:normal;color:var(--acc)}
+.nrow{display:flex;align-items:baseline;gap:14px;padding:13px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+.nrow:hover{background:var(--panel2)}
+.nrow:last-child{border-bottom:none}
+.nrow .d{font:500 10px 'JetBrains Mono';color:var(--mut);white-space:nowrap;width:56px}
+.nrow .t{font:600 14px 'Golos Text'}
+.nrow svg{width:14px;height:14px;flex-shrink:0;align-self:center}
+.chatmsg{max-width:82%;padding:10px 13px;font-size:13px;line-height:1.45;margin-bottom:9px}
+.chatmsg.me{background:var(--ink);color:var(--bg);margin-left:auto}
+.chatmsg.rc{background:var(--panel2);border:1px solid var(--line)}
+.qrwrap{display:grid;place-items:center;padding:22px}
+canvas{image-rendering:pixelated;border:1px solid var(--line)}
+.lg-wrap{min-height:92vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative}
+.lg-wm{position:fixed;right:-30px;bottom:-70px;font:900 clamp(220px,38vw,480px) var(--f-disp);color:var(--wm);pointer-events:none;line-height:1;user-select:none}
+.lg-card{width:440px;max-width:100%;background:var(--panel);border:1px solid var(--line);position:relative;z-index:2}
+.lg-tabs{display:flex;border-bottom:1px solid var(--line)}
+.lg-tab{flex:1;padding:14px;background:none;border:none;border-bottom:2px solid transparent;font:700 11px 'JetBrains Mono';letter-spacing:2.4px;color:var(--mut);cursor:pointer}
+.lg-tab.act{color:var(--ink);border-color:var(--acc);background:var(--panel2)}
+.lg-body{padding:22px}
+.fld{margin-bottom:12px}
+.fld label{display:block;margin-bottom:6px}
+.lg-btn{width:100%;justify-content:center;padding:15px;font-size:13px;margin-top:4px}
+.lg-foot{padding:12px 22px;border-top:1px solid var(--line);font:500 9px 'JetBrains Mono';letter-spacing:1.6px;color:var(--mut);text-align:center}
+.err{font:600 11.5px 'Golos Text';color:var(--acc);margin:4px 0 10px;min-height:15px}
+.themedot{display:inline-block;width:12px;height:12px;border:1px solid var(--mut);margin:0 3px;cursor:pointer;vertical-align:middle}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.slot{border:1px solid var(--ink);padding:11px 0;text-align:center;font:600 13px 'JetBrains Mono';cursor:pointer;background:var(--panel2)}
+.slot:hover{background:var(--panel)}
+.slot.on{background:var(--ink);color:var(--bg)}
+.slot:disabled{opacity:.28;cursor:not-allowed;text-decoration:line-through}
+.ptx{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid var(--line)}
+.ptx:last-child{border-bottom:none}
+/* API */
+.mth{font:700 9px 'JetBrains Mono';letter-spacing:1px;padding:3px 7px;border:1px solid var(--ink);flex-shrink:0;min-width:46px;text-align:center}
+.mth.GET{background:var(--ink);color:var(--bg)}
+.mth.POST{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.mth.PATCH{background:transparent;color:var(--ink)}
+.mth.DEL{background:transparent;color:var(--mut);border-color:var(--mut);text-decoration:line-through}
+.mth.WH{background:var(--dk);color:var(--dk-fg);border-color:var(--dk)}
+.ep{display:flex;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line);cursor:pointer;font-size:12.5px}
+.ep:hover{background:var(--panel2)}
+.ep .pth{font:600 12px 'JetBrains Mono';white-space:nowrap}
+.ep .ds{color:var(--mut);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ep>svg{width:13px;height:13px;flex-shrink:0;color:var(--mut)}
+pre.sample{margin:0;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel2);font:11.5px/1.55 'JetBrains Mono';overflow-x:auto;white-space:pre;color:var(--ink)}
+.arch{display:flex;flex-direction:column;align-items:center;gap:5px;padding:18px 14px}
+.arch .bx{border:1px solid var(--ink);background:var(--panel2);padding:10px 18px;font:600 12.5px 'Golos Text';text-align:center;max-width:400px;width:100%}
+.arch .bx b{display:block;font:700 10px 'JetBrains Mono';letter-spacing:1.4px;margin-bottom:3px;color:var(--acc)}
+.arch .ar{color:var(--acc);font:700 13px 'JetBrains Mono'}
+.sysrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%}
+.sysrow .bx{max-width:200px;font-size:11.5px;padding:8px 10px}
+@media(max-width:980px){
+ .c4,.c5,.c6,.c7,.c8{grid-column:span 12}
+ .kpi{grid-template-columns:1fr 1fr}
+ .kpi>div:nth-child(3){border-left:none}
+ .logo .sub{display:none}
+ .sync{display:none}
+ .usr .who{display:none}
+ .lg-wm{display:none}
+ nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--line);height:calc(56px + env(safe-area-inset-bottom));overflow:hidden;z-index:950;padding-bottom:env(safe-area-inset-bottom)}
+ .tab{flex:1;flex-direction:column;justify-content:center;gap:3px;font-size:8px;padding:4px 1px;letter-spacing:.6px;border-right:none}
+ .tab.act::after{bottom:auto;top:0}
+ main{padding:18px 14px calc(120px + env(safe-area-inset-bottom))}
+ #cartbar{bottom:calc(74px + env(safe-area-inset-bottom));right:14px}
+ #clock{padding:0 10px}
+ .hbar{grid-template-columns:110px 1fr 40px}
+ .ep .ds{white-space:normal}
+}
+@media(max-width:600px){#clock{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="mark">B</div>
+    <div><div class="name">BETON BRUT</div><div class="sub">HOTEL · APP</div></div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="hr">
+    <div class="sync"><span class="dot"></span>IIKO <span id="s-iiko">—</span></div>
+    <div class="sync"><span class="dot"></span>1С:ОТЕЛЬ·СПА <span id="s-1c">—</span></div>
+    <button class="iconbtn" id="themebtn" title="Оформление" onclick="openThemes()"><i data-lucide="palette"></i></button>
+    <button class="iconbtn" id="instbtn" style="display:none" title="Установить приложение" onclick="installApp()"><i data-lucide="download"></i></button>
+    <button class="iconbtn" id="bellbtn" title="Уведомления" onclick="openPush()"><i data-lucide="bell"></i><span class="badge" id="pushbadge">0</span></button>
+    <button class="iconbtn" id="demobtn" title="Демо: сменить роль" onclick="demoSwitch()"><i data-lucide="arrow-right-left"></i></button>
+    <div class="usr" id="usrchip"></div>
+    <button class="iconbtn" id="chatbtn" onclick="openChat()"><i data-lucide="message-square"></i><span class="badge" id="chatbadge">2</span></button>
+    <div id="clock">—</div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<div id="cartbar"></div>
+<div class="ovl" id="ovl" onclick="closeAll()"></div>
+<div class="drawer" id="drawer"></div>
+<div class="modal" id="modal"></div>
+<div id="toasts"></div>
+
+<script>
+/* ================= PWA ================= */
+(function(){
+ const icon="data:image/svg+xml,"+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='#161512'/><rect x='88' y='88' width='336' height='336' fill='#FF4B00'/><text x='256' y='368' font-family='Arial' font-size='260' font-weight='900' text-anchor='middle' fill='#161512'>B</text></svg>");
+ const m={name:'BETON BRUT · Отель',short_name:'BETON BRUT',start_url:'.',display:'standalone',background_color:'#CBC7BF',theme_color:'#161512',icons:[{src:icon,sizes:'any',type:'image/svg+xml',purpose:'any'}]};
+ const l=document.createElement('link');l.rel='manifest';
+ l.href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(m));
+ document.head.appendChild(l);
+})();
+let deferredPrompt=null;
+const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;updateInstallBtns();});
+window.addEventListener('appinstalled',()=>{deferredPrompt=null;updateInstallBtns();toast('Приложение установлено на устройство');});
+function updateInstallBtns(){
+ const show=!!deferredPrompt&&!isStandalone();
+ if($('instbtn'))$('instbtn').style.display=show?'flex':'none';
+ if($('prof-install'))$('prof-install').style.display=show?'inline-flex':'none';
+}
+function installApp(){
+ if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;updateInstallBtns();});}
+ else toast(isStandalone()?'Приложение уже установлено':'Android: меню браузера → «Установить». iPhone: «Поделиться» → «На экран Домой»');
+}
+
+/* ================= ДАННЫЕ ================= */
+const MON=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const WD=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+const now=new Date();
+const addDays=n=>{const d=new Date(now);d.setDate(d.getDate()+n);return d;};
+const dstr=d=>`${d.getDate()} ${MON[d.getMonth()]}`;
+const dsh=d=>`${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`;
+const plural=(n,f)=>{n=Math.abs(n)%100;const n1=n%10;if(n>10&&n<20)return f[2];if(n1>1&&n1<5)return f[1];if(n1===1)return f[0];return f[2];};
+const money=n=>n.toLocaleString('ru-RU')+' ₽';
+const tnow=()=>new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const hourNow=()=>now.getHours();
+const LS={get:k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+
+const GUEST={name:'Алексей Соколов',first:'Алексей',room:412,tariff:'Brut Standard',points:1240,in:addDays(-3),out:addDays(4),bdayIn:3};
+
+const ACCOUNTS={guest:{u:'9001234567',p:'4121',hint:'+7 900 123-45-67 · 4121'}};
+const STAFF=[
+ {u:'admin',p:'brut2024',name:'Ирина Волкова',role:'АДМИНИСТРАТОР',ini:'ИВ',mgmt:true},
+ {u:'chef',p:'brut2024',name:'Марат Гареев',role:'F&B · КУХНЯ',ini:'МГ',mgmt:false},
+];
+
+const TIERS=[
+ {k:'STANDARD',min:0,ben:['Приветственные 300 баллов','Кэшбэк баллами: 1 балл за 50 ₽','Полный доступ к меню и спа из приложения']},
+ {k:'BLACK',min:1000,ben:['Списание баллов до 50% счёта','Скидка 10% на спа','Комплимент от шефа к каждому визиту','Приоритетная уборка номера']},
+ {k:'TITAN',min:3000,ben:['Скидка 15% на спа','Бесплатный поздний выезд до 15:00','Апгрейд номера при наличии','Приоритетный столик в ФОРМА']},
+];
+const SPA_DISC={STANDARD:0,BLACK:10,TITAN:15};
+function tierOf(p){let r=TIERS[0];TIERS.forEach(t=>{if(p>=t.min)r=t;});return r;}
+const PTX=[
+ {d:0,t:'Приветственный бонус · приложение',v:+100},
+ {d:-3,t:'Бонус · ко дню рождения',v:+300},
+ {d:-6,t:'Списание · завтрак, ресторан ФОРМА',v:-200},
+ {d:-8,t:'Начисление · заказ О-1021',v:+84},
+ {d:-11,t:'Начисление · заказ О-981',v:+96},
+];
+
+/* ПРОМОКОДЫ */
+const PROMOS=[
+ {code:'BB150',type:'fixed',val:150,active:true,used:14,note:'Гостям приложения'},
+ {code:'ВЕСНА10',type:'pct',val:10,active:true,used:7,note:'Сезонная акция'},
+ {code:'TITAN20',type:'pct',val:20,active:false,used:31,note:'Только уровень TITAN'},
+];
+
+const CATS=[['Завтраки','croissant'],['Основное','beef'],['Бар','wine'],['Десерты','cake-slice']];
+const MENU=[
+ {id:1,cat:'Завтраки',name:'Сырники со сметаной',ds:'домашний творог, малиновое варенье, сметана 22%',pr:540,w:'320 г',tags:['ХИТ']},
+ {id:2,cat:'Завтраки',name:'Круассан с лососем',ds:'слабосолёный лосось, крем-сыр, укроп, лимонная цедра',pr:690,w:'210 г',tags:[]},
+ {id:3,cat:'Завтраки',name:'Шакшука',ds:'томаты конфи, яйцо 63°, фета, чили-масло',pr:620,w:'380 г',tags:['VEG']},
+ {id:4,cat:'Завтраки',name:'Каша на кокосовом молоке',ds:'пекан, кленовый сироп, банан',pr:420,w:'300 г',tags:['VEG']},
+ {id:5,cat:'Завтраки',name:'Омлет с трюфелем',ds:'три сыра, трюфельная паста, руккола',pr:740,w:'280 г',tags:[]},
+ {id:6,cat:'Завтраки',name:'Гранола с мацони',ds:'домашняя гранола, мацони, сезонные ягоды',pr:450,w:'260 г',tags:[]},
+ {id:7,cat:'Основное',name:'Клубный бургер',ds:'мраморная говядина 180 г, чеддер, бриошь, соус BBQ',pr:890,w:'420 г',tags:['ХИТ']},
+ {id:8,cat:'Основное',name:'Стейк рибай',ds:'гриль, соус демиглас, копчёное масло, овощи',pr:2400,w:'350 г',tags:[]},
+ {id:9,cat:'Основное',name:'Паста с белыми грибами',ds:'паппарделле, сливки, пармезан, трюфель',pr:720,w:'340 г',tags:['VEG']},
+ {id:10,cat:'Основное',name:'Том-ям с креветками',ds:'кокосовое молоко, галангал, лайм, тигровые креветки',pr:840,w:'400 г',tags:['ОСТРОЕ']},
+ {id:11,cat:'Основное',name:'Боул с лососем',ds:'рис, лосось су-вид, авокадо, эдамаме, нори',pr:980,w:'380 г',tags:[]},
+ {id:12,cat:'Основное',name:'Пельмени с говядиной',ds:'ручная лепка, говядина + свинина, сметана, бульон',pr:560,w:'320 г',tags:['ХИТ']},
+ {id:13,cat:'Бар',name:'Эспрессо',ds:'обжарка отеля, моносорт Эфиопия',pr:250,w:'30 мл',tags:['ХИТ']},
+ {id:14,cat:'Бар',name:'Капучино',ds:'двойной эспрессо, молоко 3,2%',pr:350,w:'200 мл',tags:[]},
+ {id:15,cat:'Бар',name:'Эль «Бетон»',ds:'авторский NEIPA, варим с локальной пивоварней',pr:590,w:'500 мл',tags:['18+']},
+ {id:16,cat:'Бар',name:'Лимонад «Агава-лайм»',ds:'агава, лайм, мята, тоник',pr:380,w:'400 мл',tags:[]},
+ {id:17,cat:'Бар',name:'Негрони',ds:'джин, кампари, красный вермут, апельсин',pr:690,w:'120 мл',tags:['18+']},
+ {id:18,cat:'Бар',name:'Чай «Облепиха»',ds:'облепиха, мёд, тимьян',pr:420,w:'600 мл',tags:[]},
+ {id:19,cat:'Десерты',name:'Медовик',ds:'14 коржей, крем на сметане, гречишный мёд',pr:420,w:'150 г',tags:['ХИТ']},
+ {id:20,cat:'Десерты',name:'Баскский чизкейк',ds:'жжёная корочка, крем-сыр, ваниль',pr:480,w:'140 г',tags:[]},
+ {id:21,cat:'Десерты',name:'Шоколадный фондан',ds:'тёмный шоколад 70%, мороженое-маскарпоне',pr:520,w:'130 г',tags:[]},
+ {id:22,cat:'Десерты',name:'Сорбет «Мандарин»',ds:'сицилийский мандарин, без сахара',pr:350,w:'110 г',tags:['VEG']},
+];
+
+const HIST=[
+ {d:-1,t:'09:12',items:[{n:'Эспрессо',q:2,p:250},{n:'Сырники со сметаной',q:1,p:540}]},
+ {d:-1,t:'20:44',items:[{n:'Клубный бургер',q:1,p:890},{n:'Лимонад «Агава-лайм»',q:1,p:380}]},
+ {d:-2,t:'08:57',items:[{n:'Эспрессо',q:1,p:250},{n:'Медовик',q:1,p:420}]},
+ {d:-3,t:'13:30',items:[{n:'Клубный бургер',q:2,p:890},{n:'Капучино',q:2,p:350}]},
+ {d:-4,t:'09:05',items:[{n:'Эспрессо',q:2,p:250},{n:'Капучино',q:1,p:350}]},
+ {d:-5,t:'10:20',items:[{n:'Сырники со сметаной',q:2,p:540},{n:'Чай «Облепиха»',q:1,p:420}]},
+ {d:-6,t:'09:18',items:[{n:'Эспрессо',q:1,p:250},{n:'Клубный бургер',q:1,p:890}]},
+ {d:-8,t:'19:02',items:[{n:'Пельмени с говядиной',q:1,p:560},{n:'Чай «Облепиха»',q:1,p:420}]},
+ {d:-9,t:'08:48',items:[{n:'Эспрессо',q:2,p:250},{n:'Сырники со сметаной',q:1,p:540}]},
+ {d:-11,t:'12:15',items:[{n:'Клубный бургер',q:1,p:890},{n:'Капучино',q:1,p:350},{n:'Медовик',q:1,p:420}]},
+];
+
+const NEWS=[
+ {id:1,d:0,t:'Гастроужин «Бетон и огонь»',sub:'Шеф-стол на 24 персоны: мясо на углях, ферментация, дым. Ресторан ФОРМА, 19:00. Рассадка по записи.',tag:'СЕГОДНЯ',ic:'utensils'},
+ {id:2,d:2,t:'Ночь авторского кино',sub:'Лаунж 3 этаж · 21:00 · свободный вход',ic:'film'},
+ {id:3,d:5,t:'Выставка «Сырая форма»',sub:'Графика и скульптура · галерея, 1 этаж · ежедневно 10:00–21:00',ic:'frame'},
+ {id:4,d:7,t:'Спа-ритуал «Пар и камень»',sub:'Сезонная программа · хаммам + контрастный бассейн · по записи',ic:'flower-2'},
+];
+
+const BOOKINGS=[
+ {id:1,room:205,guest:'Ольга и Павел Морозовы',dates:`${dstr(addDays(0))} — ${dstr(addDays(3))}`,st:'booked',note:'3 ночи'},
+ {id:2,room:410,guest:'Игорь Самойлов',dates:`${dstr(addDays(0))} — ${dstr(addDays(1))}`,st:'booked',note:'1 ночь'},
+ {id:3,room:118,guest:'Дмитрий Волков',dates:`${dstr(addDays(-2))} — ${dstr(addDays(0))}`,st:'out',note:'выезд до 12:00'},
+ {id:4,room:224,guest:'Сергей и Ирина Ефремовы',dates:`${dstr(addDays(-4))} — ${dstr(addDays(0))}`,st:'out',note:'выезд до 12:00'},
+ {id:5,room:307,guest:'Марина Ким',dates:`${dstr(addDays(-1))} — ${dstr(addDays(1))}`,st:'in',note:'2 ночи'},
+ {id:6,room:512,guest:'Анна Ли',dates:`${dstr(addDays(-2))} — ${dstr(addDays(2))}`,st:'in',note:'продление'},
+];
+
+const BDAYS=[
+ {name:'Ольга Морозова',room:205,off:0,pref:'Завтраки · безлактозное'},
+ {name:'Игорь Самойлов',room:410,off:1,pref:'Стейки · виски'},
+ {name:'Алексей Соколов',room:412,off:3,pref:'авто-расчёт из истории'},
+ {name:'Анна Ли',room:512,off:6,pref:'VEG · морепродукты'},
+];
+
+const CRM=[
+ {id:1,name:'Алексей Соколов',room:412,tier:'BLACK',pts:1240,visits:4,since:'2023',life:126400,spaVisits:2,lastSpa:'окт 2024',vip:true,
+  stays:[{p:'12–19 окт 2024',n:7,room:410,spend:48200},{p:'02–05 июл 2024',n:3,room:415,spend:21400},{p:'23–25 фев 2024',n:2,room:408,spend:15600}],
+  top:[['Эспрессо',14],['Клубный бургер',6],['Сырники со сметаной',4]],
+  prefs:['столик у окна','жёсткие подушки','двойной эспрессо'],allergy:'частичная непереносимость лактозы',
+  notes:[{d:'19.10.24',by:'Ирина В.',t:'Просил столик у окна на завтраки. В прошлый визит брал поздний выезд — остался доволен.'}]},
+ {id:2,name:'Дмитрий Волков',room:118,tier:'TITAN',pts:5120,visits:9,since:'2022',life:331500,spaVisits:5,lastSpa:'ноя 2024',vip:true,
+  stays:[{p:'08–11 ноя 2024',n:3,room:118,spend:64100},{p:'14–17 сен 2024',n:3,room:512,spend:58900}],
+  top:[['Стейк рибай',11],['Негрони',9],['Эспрессо',8]],
+  prefs:['номера выше 3 этажа','вино в номер к приезду'],allergy:'—',
+  notes:[{d:'02.11.24',by:'Марат Г.',t:'Завтраки пропускает, всегда просит поздний room service. Не предлагать блюда с орехами.'}]},
+ {id:3,name:'Игорь Самойлов',room:410,tier:'BLACK',pts:2180,visits:6,since:'2022',life:210800,spaVisits:3,lastSpa:'дек 2024',vip:true,
+  stays:[{p:'20–22 дек 2024',n:2,room:410,spend:44200},{p:'05–08 авг 2024',n:3,room:412,spend:51700}],
+  top:[['Стейк рибай',7],['Эль «Бетон»',6],['Медовик',4]],
+  prefs:['шотландский виски','тихий этаж'],allergy:'—',notes:[]},
+ {id:4,name:'Ольга Морозова',room:205,tier:'STANDARD',pts:640,visits:2,since:'2024',life:58300,spaVisits:1,lastSpa:'янв 2025',vip:false,
+  stays:[{p:'24–31 дек 2024',n:7,room:207,spend:39800}],
+  top:[['Сырники со сметаной',5],['Капучино',5]],prefs:['безлактозное молоко','детская кроватка'],allergy:'лактоза',notes:[]},
+ {id:5,name:'Анна Ли',room:512,tier:'STANDARD',pts:480,visits:3,since:'2024',life:47900,spaVisits:2,lastSpa:'фев 2025',vip:false,
+  stays:[{p:'10–14 фев 2025',n:4,room:512,spend:24300}],
+  top:[['Боул с лососем',4],['Шакшука',3]],prefs:['VEG-опции','поздний завтрак'],allergy:'—',notes:[]},
+ {id:6,name:'Марина Ким',room:307,tier:'STANDARD',pts:120,visits:1,since:'2025',life:12400,spaVisits:0,lastSpa:'—',vip:false,
+  stays:[{p:'14–16 фев 2025',n:2,room:307,spend:12400}],
+  top:[['Капучино',2],['Баскский чизкейк',1]],prefs:['—'],allergy:'—',notes:[]},
+];
+
+const SPA=[
+ {id:'sp1',name:'Массаж «Сила бетона»',dur:60,pr:4900,ds:'глубокий массаж с разогревающими маслами, фокус на спину и шею'},
+ {id:'sp2',name:'Хаммам + пилинг «Гранит»',dur:45,pr:2900,ds:'мыльный массаж, пилинг на чёрном мыле, пар 45°'},
+ {id:'sp3',name:'Ритуал «Пар и камень»',dur:120,pr:7900,ds:'хаммам, контрастный бассейн, массаж 60 мин, травяной чай'},
+ {id:'sp4',name:'Экспресс-массаж шеи',dur:30,pr:2500,ds:'быстрое снятие зажимов после перелёта'},
+ {id:'sp5',name:'Обёртывание «Морской бетон»',dur:45,pr:3200,ds:'водоросли и глина, интенсивное увлажнение'},
+ {id:'sp6',name:'Пара-ритуал на двоих',dur:90,pr:11900,ds:'двойной кабинет, хаммам, лимонады включены'},
+];
+const SLOT=['09:00','10:30','12:00','13:30','15:00','16:30','18:00','19:30'];
+const TAKEN={0:['10:30','15:00'],1:['11:00','18:00']};
+const ST_S=['Записана','Подтверждена','Выполнена'];
+
+const HRS=[['08',6],['09',4],['10',3],['11',7],['12',9],['13',5],['14',3],['15',2]];
+const TOPW=[['Эспрессо',48],['Клубный бургер',31],['Сырники со сметаной',27],['Капучино',24],['Медовик',18]];
+
+const THEMES=[
+ {k:'concrete',name:'Бетон',sub:'Брутальный минимализм · фирменная тема отеля',sw:['#CBC7BF','#E5E2DB','#161512','#FF4B00']},
+ {k:'night',name:'Ночь',sub:'Тёмная тема · вечером в номере и ночью',sw:['#131210','#1B1A17','#EDE8DD','#FF5A1F']},
+ {k:'linen',name:'Лён',sub:'Тёплый бутик-отель · мягкий свет и терракота',sw:['#F1EBDF','#FAF6EC','#2B2016','#C24D2C']},
+ {k:'heritage',name:'Классика',sub:'Исторический отель · глубокая зелень и вино',sw:['#E9E3D3','#F4F0E4','#1C3A2D','#93272C']},
+];
+
+/* ================= СОСТОЯНИЕ ================= */
+const state={
+ session:null,lg:{tab:'guest',u:'',p:'',err:''},
+ role:'guest',gtab:'home',stab:'dash',mcat:'Завтраки',adminTab:'menu',
+ cart:{},cartTime:'asap',cartNote:'',dnd:false,
+ pay:null,sp:null,demoPushed:false,newsNext:5,
+ push:{
+  perm:('Notification' in window)?Notification.permission:'unsupported',
+  prefs:{orders:true,spa:true,news:true,loyalty:true},
+  center:[
+   {ic:'sparkles',t:'Добро пожаловать домой',s:'Цифровой ключ активен · номер 412',cat:'sys',time:'12:20',read:true},
+   {ic:'cake',t:'Через 3 дня — ваш день рождения',s:'Шеф готовит комплимент, а мы начислим 300 баллов',cat:'loyalty',time:'09:05',read:false},
+  ],
+ },
+ orders:[
+  {id:'О-1042',guest:'Марина Ким',room:307,items:[{n:'Капучино',q:2,p:350},{n:'Баскский чизкейк',q:1,p:480}],total:1180,tip:80,time:'12:41',stage:1},
+  {id:'О-1041',guest:'Дмитрий Волков',room:118,items:[{n:'Стейк рибай',q:1,p:2400},{n:'Негрони',q:1,p:690}],total:3090,tip:300,time:'12:38',stage:0},
+  {id:'О-1040',guest:'Анна Ли',room:512,items:[{n:'Том-ям с креветками',q:1,p:840}],total:840,tip:0,time:'12:30',stage:2},
+ ],
+ requests:[
+  {id:'Р-11',label:'Уборка номера',room:307,time:'12:22',st:'new'},
+  {id:'Р-10',label:'Принадлежности: бритва',room:118,time:'12:05',st:'work'},
+ ],
+ reqSent:{},amenSet:new Set(),complimented:new Set(),
+ spaBookings:[
+  {id:101,guest:'Ольга Морозова',room:205,t:'Массаж «Сила бетона»',day:0,time:'11:00',dur:60,pr:4900,pay:'место',st:0},
+  {id:102,guest:'Игорь Самойлов',room:410,t:'Хаммам + пилинг «Гранит»',day:0,time:'14:00',dur:45,pr:2610,pay:'номер',st:1},
+  {id:103,guest:GUEST.name,room:412,t:'Ритуал «Пар и камень»',day:1,time:'18:00',dur:120,pr:7110,pay:'номер',st:0,mine:true},
+ ],
+ spaNext:104,tipsToday:1250,
+ iikoSync:'12:41:02',onecSync:'12:39:47',
+ chatMsgs:[
+  {who:'rc',txt:'Добрый день, Алексей! Мы на связи 24/7 — напишите, если что-то нужно.'},
+  {who:'rc',txt:'Ваш трансфер в аэропорт подтверждён: '+dstr(addDays(2))+', 18:00, главный холл.'},
+ ],
+};
+let nextId=1043;
+const ST=['Принят','Готовится','Доставляется','Доставлен'];
+const ETA=['≈ 35–45 мин','≈ 25–35 мин','курьер в пути','доставлено'];
+
+/* ================= ХЕЛПЕРЫ ================= */
+const $=id=>document.getElementById(id);
+function toast(msg){const t=document.createElement('div');t.className='toast';
+ t.innerHTML=`<i data-lucide="check-circle-2"></i><span>${msg}</span>`;
+ $('toasts').appendChild(t);lucide.createIcons();
+ setTimeout(()=>{t.style.transition='.4s';t.style.opacity='0';t.style.transform='translateY(10px)';setTimeout(()=>t.remove(),400);},3600);}
+function topStats(){const m={};const push=(n,q,p)=>{m[n]=m[n]||{q:0,s:0};m[n].q+=q;m[n].s+=q*p;};
+ HIST.forEach(h=>h.items.forEach(i=>push(i.n,i.q,i.p)));
+ state.orders.filter(o=>o.mine&&o.stage===3).forEach(o=>o.items.forEach(i=>push(i.n,i.q,i.p)));
+ return Object.entries(m).sort((a,b)=>b[1].q-a[1].q);}
+function cartCount(){return Object.values(state.cart).reduce((s,v)=>s+v,0);}
+function cartSum(){return Object.entries(state.cart).reduce((s,[id,q])=>s+((MENU.find(m=>m.id==id)||{}).pr||0)*q,0);}
+function openNow(a,b){const h=hourNow();return a===0&&b===24?true:(a<b?h>=a&&h<b:h>=a||h<b);}
+
+/* ================= ПУШИ ================= */
+function notify(cat,ic,t,s){
+ if(state.push.prefs[cat]===false)return;
+ state.push.center.unshift({ic,t,s,cat,time:tnow().slice(0,5),read:false});
+ updateBadges();
+ try{if(state.push.perm==='granted'&&document.hidden)new Notification('BETON BRUT · '+t,{body:s});}catch(e){}
+}
+function updateBadges(){
+ const n=state.push.center.filter(x=>!x.read).length;
+ const b=$('pushbadge');if(b){b.textContent=n;b.style.display=n?'grid':'none';}
+}
+function openPush(){
+ const list=state.push.center;
+ $('drawer').innerHTML=`
+  <div class="bh" style="padding:16px 18px"><div><div class="disp" style="font:700 15px var(--f-disp)">УВЕДОМЛЕНИЯ</div>
+   <div class="lbl" style="margin-top:3px">${list.filter(x=>!x.read).length} НОВЫХ · ${state.push.perm==='granted'?'ПУШИ ВКЛЮЧЕНЫ':'ПУШИ БРАУЗЕРА НЕ АКТИВНЫ'}</div></div>
+   <button class="iconbtn" style="width:auto;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+  <div style="flex:1;overflow-y:auto">
+   ${list.length?list.map((n,i)=>`
+    <div class="row" style="cursor:${n.read?'default':'pointer'};${n.read?'':'box-shadow:inset 3px 0 0 var(--acc)'}" onclick="readPush(${i})">
+     <i data-lucide="${n.ic}" class="ic"></i>
+     <div class="grow"><div class="ttl" style="${n.read?'':'font-weight:700'}">${n.t}</div><div class="sub">${n.s}</div></div>
+     <span class="mono" style="font-size:10px;color:var(--mut)">${n.time}</span>
+    </div>`).join('')
+   :`<div class="lbl" style="padding:30px;text-align:center">ПУСТО</div>`}
+  </div>
+  <div style="border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap">
+   <button class="btn sm ghost" onclick="readAllPush()">Прочитать все</button>
+   ${state.role==='guest'?`<button class="btn sm ghost" onclick="closeAll();setTab('profile')">Настройки</button>`:''}
+   <button class="btn sm" style="margin-left:auto" onclick="testPush()"><i data-lucide="bell-ring"></i>Тест</button>
+  </div>`;
+ $('drawer').classList.add('open');$('ovl').classList.add('on');lucide.createIcons();
+}
+function readPush(i){state.push.center[i].read=true;openPush();}
+function readAllPush(){state.push.center.forEach(n=>n.read=true);updateBadges();openPush();}
+function testPush(){
+ state.push.center.unshift({ic:'bell-ring',t:'Тестовое уведомление',s:'Так будут выглядеть пуши из приложения',cat:'sys',time:tnow().slice(0,5),read:false});
+ updateBadges();
+ try{if('Notification' in window&&Notification.permission==='granted')new Notification('BETON BRUT',{body:'Тестовый push — уведомления работают'});}catch(e){}
+ toast('Тестовый push отправлен');openPush();
+}
+function askPush(){
+ if(!('Notification' in window)){toast('Браузер не поддерживает web-push. В нативной сборке (Capacitor + Firebase) пуши придут всегда');return;}
+ Notification.requestPermission().then(r=>{state.push.perm=r;
+  toast(r==='granted'?'Уведомления включены':'Уведомления заблокированы — можно включить в настройках браузера');render();});
+}
+function togPush(k){state.push.prefs[k]=!state.push.prefs[k];render();}
+
+/* ================= АВТОРИЗАЦИЯ ================= */
+function lgTab(t){state.lg.tab=t;state.lg.err='';state.lg.u='';state.lg.p='';render();}
+function lgFill(u,p){state.lg.u=u;state.lg.p=p;state.lg.err='';render();}
+function tryLogin(){
+ const u=$('lg-u').value.trim(),p=$('lg-p').value;
+ if(state.lg.tab==='guest'){
+  if(u.replace(/\D/g,'').slice(-10)===ACCOUNTS.guest.u&&p===ACCOUNTS.guest.p)okLogin('guest',{u});
+  else fail('Неверный телефон или пароль. Демо: +7 900 123-45-67 / 4121');
+ }else{
+  const f=STAFF.find(s=>s.u===u&&s.p===p);
+  if(f)okLogin('staff',{u},f);
+  else fail('Неверный логин или пароль. Демо: admin / brut2024');
+ }
+}
+function okLogin(role,acc,f){
+ const auth=LS.get('bb_auth')||{};auth[role]=acc;LS.set('bb_auth',auth);
+ LS.set('bb_session',{role,u:acc.u});
+ state.session=role==='guest'?{role:'guest'}:{role:'staff',...f};
+ toast(role==='guest'?'С возвращением, Алексей! Номер 412':`Смена принята, ${f.name.split(' ')[0]} · ${f.role}`);
+ if(role==='guest'&&!state.demoPushed){
+  state.demoPushed=true;
+  setTimeout(()=>notify('loyalty','coins','+100 баллов за вход в приложение','Приветственный бонус · баланс '+GUEST.points),6000);
+  setTimeout(()=>notify('news','utensils','Сегодня: гастроужин «Бетон и огонь»','19:00 · ресторан ФОРМА · осталось 4 места'),18000);
+ }
+ if(role==='staff')setTimeout(()=>notify('orders','chef-hat','Смена принята','Активных заказов: '+state.orders.filter(o=>o.stage<3).length+' · запросов: '+state.requests.filter(r=>r.st!=='done').length),1500);
+ render();
+}
+function fail(m){state.lg.err=m;render();}
+function quickLogin(role){
+ const a=(LS.get('bb_auth')||{})[role];if(!a)return;
+ if(role==='guest')okLogin('guest',a);
+ else{const f=STAFF.find(s=>s.u===a.u);if(f)okLogin('staff',a,f);}
+}
+function logout(){state.session=null;LS.del('bb_session');render();}
+function demoSwitch(){
+ if(!state.session)return;
+ const other=state.session.role==='guest'?'staff':'guest';
+ const a=(LS.get('bb_auth')||{})[other];
+ if(other==='guest'&&a){state.session={role:'guest'};LS.set('bb_session',{role:'guest',u:a.u});toast('Демо: переключено на профиль гостя');closeAll();render();return;}
+ if(other==='staff'&&a){const f=STAFF.find(s=>s.u===a.u);if(f){state.session={role:'staff',...f};LS.set('bb_session',{role:'staff',u:f.u});toast('Демо: переключено на панель персонала');closeAll();render();return;}}
+ logout();
+}
+function renderLogin(){
+ const t=state.lg.tab,auth=LS.get('bb_auth')||{};
+ return `
+ <div class="lg-wrap">
+  <div class="lg-wm">412</div>
+  <div class="lg-card">
+   <div style="padding:22px 22px 18px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line)">
+    <div style="width:38px;height:38px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:900 16px var(--f-disp)">B</div>
+    <div><div class="disp" style="font:800 17px var(--f-disp)">BETON BRUT</div><div class="lbl" style="margin-top:3px">ГОСТЬ И ПЕРСОНАЛ · ОДНО ПРИЛОЖЕНИЕ</div></div>
+   </div>
+   <div class="lg-tabs">
+    <button class="lg-tab ${t==='guest'?'act':''}" onclick="lgTab('guest')">ГОСТЬ</button>
+    <button class="lg-tab ${t==='staff'?'act':''}" onclick="lgTab('staff')">ПЕРСОНАЛ</button>
+   </div>
+   <div class="lg-body">
+    <div class="lbl" style="margin-bottom:14px">${t==='guest'?'ВХОД ПО НОМЕРУ ТЕЛЕФОНА · ДАННЫЕ ИЗ 1С:ОТЕЛЬ':'ВХОД ДЛЯ АДМИНИСТРАТОРОВ И СЛУЖБ'}</div>
+    <div class="fld"><label class="lbl">${t==='guest'?'ТЕЛЕФОН':'ЛОГИН'}</label>
+     <input type="${t==='guest'?'tel':'text'}" id="lg-u" placeholder="${t==='guest'?'+7 900 123-45-67':'admin'}" value="${state.lg.u}" oninput="state.lg.u=this.value" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+    <div class="fld"><label class="lbl">ПАРОЛЬ</label>
+     <input type="password" id="lg-p" placeholder="••••" value="${state.lg.p}" oninput="state.lg.p=this.value" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+    <div class="err">${state.lg.err||''}</div>
+    <button class="btn acc lg-btn" onclick="tryLogin()"><i data-lucide="log-in"></i>Войти в приложение</button>
+    ${t==='guest'&&auth.guest?`<button class="chip" style="margin-top:10px;width:100%;text-align:center" onclick="quickLogin('guest')">БЫСТРЫЙ ВХОД: АЛЕКСЕЙ СОКОЛОВ</button>`:''}
+    ${t==='staff'&&auth.staff?(()=>{const f=STAFF.find(s=>s.u===auth.staff.u);return f?`<button class="chip" style="margin-top:10px;width:100%;text-align:center" onclick="quickLogin('staff')">БЫСТРЫЙ ВХОД: ${f.name.toUpperCase()}</button>`:'';})():''}
+    <div class="lbl" style="margin:18px 0 8px">ДЕМО-ДОСТУПЫ · НАЖМИТЕ, ЧТОБЫ ЗАПОЛНИТЬ</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+     ${t==='guest'
+      ?`<button class="chip" onclick="lgFill('+7 900 123-45-67','4121')">${ACCOUNTS.guest.hint}</button>`
+      :STAFF.map(s=>`<button class="chip" onclick="lgFill('${s.u}','${s.p}')">${s.u} / ${s.p} · ${s.name.split(' ')[0]}</button>`).join('')}
+    </div>
+   </div>
+   <div class="lg-foot">BETON BRUT · PWA · API V1 · 1С:ОТЕЛЬ · 1С:СПА · IIKO &nbsp; ОФОРМЛЕНИЕ: ${THEMES.map(th=>`<span class="themedot" title="${th.name}" style="background:${th.sw[2]}" onclick="setTheme('${th.k}')"></span>`).join('')}</div>
+  </div>
+ </div>`;
+}
+
+/* ================= КАРКАС ================= */
+function setTab(k){if(state.role==='guest')state.gtab=k;else state.stab=k;window.scrollTo(0,0);render(true);}
+function render(anim){
+ document.body.classList.toggle('nolog',!state.session);
+ if(!state.session){$('tabs').innerHTML='';$('app').innerHTML=renderLogin();lucide.createIcons();return;}
+ state.role=state.session.role;
+ $('usrchip').innerHTML=state.role==='guest'
+  ?`<div class="av" onclick="setTab('profile')">АС</div><div class="who" onclick="setTab('profile')"><div class="nm">Алексей Соколов</div><div class="rl">НОМЕР 412 · ${tierOf(GUEST.points).k}</div></div>`
+  :`<div class="av">${state.session.ini}</div><div class="who"><div class="nm">${state.session.name}</div><div class="rl">${state.session.role}</div></div>`;
+ $('chatbtn').style.display=state.role==='guest'?'flex':'none';
+ let tabs;
+ if(state.role==='guest'){
+  tabs=[['home','layout-dashboard','Главная'],['menu','utensils','Меню'],['orders','receipt-text','Заказы'],['spa','flower-2','Спа'],['services','concierge-bell','Сервис'],['profile','user-round','Профиль']];
+ }else{
+  tabs=[['dash','gauge','Обзор'],['front','calendar-check','Заезды·1С'],['kitchen','chef-hat','Заказы·iiko'],['spa','flower-2','Спа·1С'],['guests','users-round','Гости']];
+  if(state.session.mgmt)tabs.push(['admin','settings-2','Управление'],['api','braces','API · 1С·iiko']);
+ }
+ const cur=state.role==='guest'?state.gtab:state.stab;
+ $('tabs').innerHTML=tabs.map(([k,ic,l])=>`<div class="tab ${cur===k?'act':''}" onclick="setTab('${k}')"><i data-lucide="${ic}"></i><span>${l}</span></div>`).join('');
+ renderApp();
+ const app=$('app');
+ if(anim){app.classList.remove('fade');void app.offsetWidth;app.classList.add('fade');}
+ const cb=$('cartbar');const cc=cartCount();
+ if(state.role==='guest'&&cc>0){cb.className='on';
+  cb.innerHTML=`<button class="btn acc" style="padding:15px 22px;font-size:13px" onclick="openCart()"><i data-lucide="shopping-bag"></i>КОРЗИНА · ${cc} ${plural(cc,['позиция','позиции','позиций'])} · ${money(cartSum())}</button>`;
+ }else{cb.className='';cb.innerHTML='';}
+ const nb=$('chatbadge');
+ if(nb){const n=state.chatMsgs.filter(m=>m.who==='rc'&&!m.seen).length;nb.textContent=n;nb.style.display=n?'grid':'none';}
+ updateBadges();updateInstallBtns();
+ lucide.createIcons();
+}
+function renderApp(){
+ const app=$('app');
+ if(state.role==='guest')app.innerHTML=({home:gHome,menu:gMenu,orders:gOrders,spa:gSpa,services:gServices,profile:gProfile})[state.gtab]();
+ else app.innerHTML=({dash:sDash,front:sFront,kitchen:sKitchen,spa:sSpa,guests:sGuests,admin:sAdmin,api:sApi})[state.stab]();
+ if(state.gtab==='profile'&&document.getElementById('qr-canvas'))drawKey($('qr-canvas'),'BB-412-SOKOLOV');
+ lucide.createIcons();
+}
+
+/* ================= ТЕМЫ ================= */
+function setTheme(k){document.documentElement.dataset.theme=k;LS.set('bb_theme',k);closeAll();render();}
+function openThemes(){
+ const cur=document.documentElement.dataset.theme||'concrete';
+ $('drawer').innerHTML=`
+  <div class="bh" style="padding:16px 18px"><div><div class="disp" style="font:700 15px var(--f-disp)">ОФОРМЛЕНИЕ</div>
+   <div class="lbl" style="margin-top:3px">4 ДИЗАЙН-НАПРАВЛЕНИЯ · ВЫБЕРИТЕ СВОЁ</div></div>
+   <button class="iconbtn" style="width:auto;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+  <div style="flex:1;overflow-y:auto">
+   ${THEMES.map(t=>`
+    <div class="row" style="cursor:pointer;${cur===t.k?'box-shadow:inset 3px 0 0 var(--acc);background:var(--panel2)':''}" onclick="setTheme('${t.k}')">
+     <div class="grow"><div class="ttl">${t.name}</div><div class="sub">${t.sub}</div></div>
+     <div style="display:flex;gap:4px;flex-shrink:0">${t.sw.map(c=>`<span style="width:18px;height:18px;background:${c};border:1px solid var(--line);display:block"></span>`).join('')}</div>
+     ${cur===t.k?'<span class="tag acc">АКТИВНА</span>':''}
+    </div>`).join('')}
+  </div>
+  <div style="border-top:1px solid var(--line);padding:14px 16px">
+   <div class="lbl">ТЕМА СОХРАНЯЕТСЯ НА УСТРОЙСТВЕ · ШРИФТЫ И АКЦЕНТЫ МЕНЯЮТСЯ ВМЕСТЕ С ПАЛИТРОЙ</div>
+  </div>`;
+ $('drawer').classList.add('open');$('ovl').classList.add('on');lucide.createIcons();
+}
+
+/* ================= ГОСТЬ: ГЛАВНАЯ ================= */
+function gHome(){
+ const h=hourNow(),greet=h<6?'Доброй ночи':h<12?'Доброе утро':h<18?'Добрый день':'Добрый вечер';
+ const nights=Math.round((GUEST.out-GUEST.in)/864e5),passed=-Math.round((GUEST.in-now)/864e5);
+ const top=topStats();
+ const n1=NEWS[0],rest=NEWS.slice(1);
+ const rl=HIST[0].items.map(i=>`${i.n} ×${i.q}`).join(', ');
+ const tier=tierOf(GUEST.points);
+ return `
+ <div class="greet" style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px">
+  <div>
+   <div class="lbl">${WD[now.getDay()]} · ${dstr(now).toUpperCase()} · НОМЕР ${GUEST.room} · ${now.getFullYear()}</div>
+   <h1>${greet},<br><em>${GUEST.first}</em>.</h1>
+  </div>
+  <button class="btn" onclick="openKey()"><i data-lucide="key-round"></i>Цифровой ключ</button>
+ </div>
+ <div class="grid">
+  <div class="c7" style="display:flex;flex-direction:column;gap:16px">
+   <div class="blk dark bp" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+    <div style="flex:0 0 auto">
+     <div class="lbl">НОМЕР</div>
+     <div style="font:900 62px var(--f-disp);line-height:1">${GUEST.room}</div>
+    </div>
+    <div style="flex:1;min-width:220px">
+     <div style="display:flex;gap:26px;margin-bottom:12px;flex-wrap:wrap">
+      <div><div class="lbl">ЗАСЕЛЕНИЕ</div><div class="mono" style="font-size:14px;margin-top:3px">${dsh(GUEST.in)}</div></div>
+      <div><div class="lbl">ВЫЕЗД</div><div class="mono" style="font-size:14px;margin-top:3px">${dsh(GUEST.out)}</div></div>
+      <div><div class="lbl">ТАРИФ</div><div style="font-weight:600;margin-top:3px">${GUEST.tariff}</div></div>
+     </div>
+     <div class="lbl" style="margin-bottom:6px">ПРОЖИВАНИЕ · НОЧЬ ${Math.min(passed+1,nights)} ИЗ ${nights}</div>
+     <div style="height:8px;border:1px solid var(--dk-line)"><div style="height:100%;width:${Math.round((passed+1)/nights*100)}%;background:var(--acc)"></div></div>
+     <div class="mono" style="font-size:10px;color:var(--dk-mut);margin-top:8px">СИНХРОНИЗИРОВАНО С 1С:ОТЕЛЬ · ${state.onecSync}</div>
+    </div>
+   </div>
+   ${GUEST.bdayIn<=7?`
+   <div style="border:1px solid var(--acc);padding:15px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+    <i data-lucide="cake" style="width:22px;height:22px;flex-shrink:0"></i>
+    <div style="flex:1;min-width:220px;font-size:13.5px"><b>${GUEST.bdayIn===0?'Сегодня ваш день рождения!':`До вашего дня рождения — ${GUEST.bdayIn} ${plural(GUEST.bdayIn,['день','дня','дней'])}.`}</b>
+    <span style="color:var(--mut)"> Мы уже готовим подарок: комплимент от шефа и поздний выезд.</span></div>
+    <span class="tag acc">${dsh(addDays(GUEST.bdayIn))}</span>
+   </div>`:''}
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="chip" onclick="setTab('menu')"><i data-lucide="utensils" style="width:13px;height:13px;vertical-align:-2px;margin-right:6px"></i>Заказ в номер</button>
+    <button class="chip" onclick="repeatLast()"><i data-lucide="rotate-ccw" style="width:13px;height:13px;vertical-align:-2px;margin-right:6px"></i>Повторить: ${rl}</button>
+    <button class="chip" onclick="reqService('Уборка номера','clean')"><i data-lucide="sparkles" style="width:13px;height:13px;vertical-align:-2px;margin-right:6px"></i>Уборка</button>
+    <button class="chip ${state.dnd?'on':''}" onclick="toggleDnd()"><i data-lucide="bell-off" style="width:13px;height:13px;vertical-align:-2px;margin-right:6px"></i>Не беспокоить</button>
+    <button class="chip" onclick="setTab('spa')"><i data-lucide="flower-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:6px"></i>Спа</button>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">01 / АФИША И НОВОСТИ</span><span class="lbl">ПРЯМОЙ ЭФИР</span></div>
+    <div style="padding:18px 16px;border-bottom:1px solid var(--line)">
+     <div style="display:flex;gap:10px;align-items:center;margin-bottom:9px">
+      <span class="tag acc">${n1.tag}</span><span class="lbl" style="color:var(--ink)">${dstr(addDays(n1.d)).toUpperCase()} · ФОРМА</span>
+     </div>
+     <div class="disp" style="font:700 21px var(--f-disp);margin-bottom:8px">${n1.t}</div>
+     <div style="font-size:13.5px;color:var(--mut);max-width:52ch;line-height:1.55">${n1.sub}</div>
+     <button class="btn sm ghost" style="margin-top:13px" onclick="toast('Стол забронирован. Подтверждение — в чате и в пуше')">Записаться</button>
+    </div>
+    ${rest.map(n=>`<div class="nrow" onclick="toast('Анонс сохранён — пришлём пуш за день')">
+      <span class="d">${dsh(addDays(n.d))}</span><span class="t grow">${n.t}</span><span class="lbl" style="flex-shrink:0">${n.sub}</span><i data-lucide="chevron-right"></i></div>`).join('')}
+   </div>
+  </div>
+  <div class="c5" style="display:flex;flex-direction:column;gap:16px">
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">СЕЙЧАС В ОТЕЛЕ</span><span class="mono" style="font-size:10px;color:var(--mut)">${tnow()}</span></div>
+    ${[['coffee','Завтрак',7,11,'шведский стол · 1 этаж'],['utensils','Ресторан ФОРМА',12,23,'последний заказ 22:30'],['flower-2','Спа и хаммам',8,22,'2 этаж, восточное крыло'],['dumbbell','Фитнес-зал',0,24,'круглосуточно, ключ-карта']].map(([ic,n,a,b,s])=>`
+     <div class="row"><i data-lucide="${ic}" class="ic"></i>
+      <div class="grow"><div class="ttl">${n}</div><div class="sub">${s}</div></div>
+      <span class="mono" style="font-size:11px;color:var(--mut)">${a===0?'00':a}:00–${b===24?'24':b}:00</span>
+      ${openNow(a,b)?'<span class="tag acc">СЕЙЧАС</span>':'<span class="tag dim">ЗАКРЫТО</span>'}
+     </div>`).join('')}
+   </div>
+   <div class="blk dark bp">
+    <div class="lbl" style="margin-bottom:12px">ВАША СТАТИСТИКА · ЭТО ПРОЖИВАНИЕ</div>
+    <div style="display:flex;gap:26px;flex-wrap:wrap;margin-bottom:14px">
+     <div><div style="font:700 30px var(--f-disp)">${HIST.length}</div><div class="lbl">ЗАКАЗОВ</div></div>
+     <div><div style="font:700 30px var(--f-disp)">${top[0][1].q}×</div><div class="lbl">ТОП: ${top[0][0].toUpperCase()}</div></div>
+     <div><div style="font:700 30px var(--f-disp)">${GUEST.points}</div><div class="lbl">БАЛЛОВ · ${tier.k}</div></div>
+     <div><div style="font:700 30px var(--f-disp)">${money(HIST.reduce((s,h)=>s+h.items.reduce((x,i)=>x+i.p*i.q,0),0)).replace(' ₽','')}</div><div class="lbl">₽, F&B</div></div>
+    </div>
+    <button class="btn acc sm" onclick="setTab('profile')">Подробнее в профиле<i data-lucide="chevron-right"></i></button>
+   </div>
+   <div class="blk bp" style="display:flex;gap:14px;align-items:center">
+    <i data-lucide="bell-ring" style="width:22px;height:22px"></i>
+    <div style="flex:1"><div class="ttl" style="font-weight:600">Пуш-уведомления</div><div class="sub" style="font-size:12.5px;color:var(--mut)">Статусы заказов, спа, баллы и афиша — ${state.push.perm==='granted'?'включены':'можно включить'}</div></div>
+    <button class="btn sm" onclick="${state.push.perm==='granted'?"openPush()":"askPush()"}">${state.push.perm==='granted'?'Центр':'Включить'}</button>
+   </div>
+  </div>
+ </div>`;
+}
+function repeatLast(){
+ HIST[0].items.forEach(i=>{const m=MENU.find(x=>x.name===i.n);if(m&&!m.stop)state.cart[m.id]=(state.cart[m.id]||0)+i.q;});
+ setTab('menu');toast('Прошлый заказ добавлен в корзину — проверьте и оплатите');
+}
+
+/* ================= ГОСТЬ: МЕНЮ ================= */
+function gMenu(){
+ const items=MENU.filter(m=>m.cat===state.mcat);
+ return `
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px">
+  <div>
+   <div class="lbl">02 / ROOM SERVICE · ПОДАЧА В НОМЕР ${GUEST.room}</div>
+   <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">МЕНЮ «ФОРМА»</div>
+  </div>
+  <div class="lbl">ИСТОЧНИК: IIKO · СИНХРОНИЗАЦИЯ ${state.iikoSync}</div>
+ </div>
+ <div class="segs" style="margin-bottom:16px">
+  ${CATS.map(([c,ic])=>`<button class="chip ${state.mcat===c?'on':''}" onclick="setCat('${c}')"><i data-lucide="${ic}" style="width:13px;height:13px;vertical-align:-2px;margin-right:7px"></i>${c}</button>`).join('')}
+ </div>
+ <div class="blk">
+  ${items.map((m,i)=>{const q=state.cart[m.id]||0;return `
+   <div class="mrow ${m.stop?'stoprow':''}">
+    <span class="idx">${String(i+1).padStart(2,'0')}</span>
+    <div style="flex:1;min-width:0">
+     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="nm">${m.name}</span>
+      ${m.tags.map(t=>`<span class="tag ${t==='ХИТ'?'acc':'dim'}">${t}</span>`).join('')}
+      ${m.stop?'<span class="tag fill">СТОП-ЛИСТ</span>':''}</div>
+     <div class="ds">${m.ds}</div>
+    </div>
+    <span class="w">${m.w}</span>
+    <span class="pr">${money(m.pr)}</span>
+    ${m.stop?'<span class="tag dim">НЕТ В НАЛИЧИИ</span>'
+     :q===0?`<button class="btn sm" onclick="addItem(${m.id})"><i data-lucide="plus"></i></button>`
+     :`<div class="qc"><button onclick="chQty(${m.id},-1)">−</button><span>${q}</span><button onclick="chQty(${m.id},1)">+</button></div>`}
+   </div>`;}).join('')}
+ </div>
+ <div class="lbl" style="margin-top:14px">СЕРВИСНЫЙ СБОР 10% · ЧАЕВЫЕ — ПО ЖЕЛАНИЮ, 100% КОМАНДЕ · ПРОМОКОД И БАЛЛЫ — ПРИ ОПЛАТЕ</div>`;
+}
+function setCat(c){state.mcat=c;render();}
+function addItem(id){const m=MENU.find(x=>x.id==id);if(!m||m.stop){toast('Позиция в стоп-листе');return;}state.cart[id]=(state.cart[id]||0)+1;render();}
+function chQty(id,d){state.cart[id]=(state.cart[id]||0)+d;if(state.cart[id]<=0)delete state.cart[id];render();}
+
+/* ================= КОРЗИНА ================= */
+function openCart(){renderCart();$('drawer').classList.add('open');$('ovl').classList.add('on');lucide.createIcons();}
+function closeAll(){$('drawer').classList.remove('open');$('ovl').classList.remove('on');$('modal').classList.remove('on');}
+function renderCart(){
+ const es=Object.entries(state.cart);
+ const sub=cartSum(),total=Math.round(sub*1.1);
+ $('drawer').innerHTML=`
+  <div class="bh" style="padding:16px 18px"><span class="disp" style="font:700 16px var(--f-disp)">ЗАКАЗ В НОМЕР ${GUEST.room}</span>
+   <button class="iconbtn" style="width:auto;padding:0 4px;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+  <div style="flex:1;overflow-y:auto">
+   ${es.length?es.map(([id,q])=>{const m=MENU.find(x=>x.id==id);if(!m)return '';return `
+    <div class="mrow" style="padding:13px 18px">
+     <div style="flex:1"><div class="nm" style="font-size:14.5px">${m.name}</div><div class="ds">${money(m.pr)} · ${m.w}</div></div>
+     <div class="qc"><button onclick="chQty(${m.id},-1)">−</button><span>${q}</span><button onclick="chQty(${m.id},1)">+</button></div>
+     <span class="pr" style="font-size:13px;width:80px;text-align:right">${money(m.pr*q)}</span>
+    </div>`;}).join('')
+   :`<div style="padding:40px 18px;text-align:center" class="lbl">КОРЗИНА ПУСТА<br><br>ВЫБЕРИТЕ БЛЮДА ВО ВКЛАДКЕ «МЕНЮ»</div>`}
+   <div style="padding:16px 18px;border-top:1px solid var(--line)">
+    <div class="lbl" style="margin-bottom:9px">ВРЕМЯ ПОДАЧИ</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+     <button class="chip ${state.cartTime==='asap'?'on':''}" onclick="state.cartTime='asap';renderCart()">Как можно скорее</button>
+     <button class="chip ${state.cartTime!=='asap'?'on':''}" onclick="state.cartTime='13:00';renderCart()">Ко времени</button>
+     ${state.cartTime!=='asap'?`<input type="time" value="${state.cartTime}" style="width:110px" onchange="state.cartTime=this.value;renderCart()">`:''}
+    </div>
+    <div class="lbl" style="margin-bottom:7px">КОММЕНТАРИЙ НА КУХНЮ</div>
+    <textarea rows="2" placeholder="Аллергии, прожарка, без лука…" onchange="state.cartNote=this.value">${state.cartNote}</textarea>
+   </div>
+  </div>
+  <div style="border-top:1px solid var(--line);padding:16px 18px">
+   <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:5px"><span>Блюда</span><span class="mono">${money(sub)}</span></div>
+   <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:11px"><span>Сервисный сбор 10%</span><span class="mono">${money(Math.round(sub*0.1))}</span></div>
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <span class="disp" style="font:700 18px var(--f-disp)">ИТОГО</span><span class="disp" style="font:700 20px var(--f-disp)">${money(total)}</span></div>
+   <button class="btn acc" style="width:100%;justify-content:center;padding:15px;font-size:13px" ${es.length?'':'disabled'} onclick="openPay()"><i data-lucide="wallet"></i>Перейти к оплате</button>
+  </div>`;
+}
+
+/* ================= ОПЛАТА: ЧАЕВЫЕ + БАЛЛЫ + ПРОМО ================= */
+function openPay(){
+ if(!cartCount())return;
+ state.pay={m:'room',pct:10,custom:0,redeem:0,promo:null,promoErr:'',mode:'form'};
+ $('modal').className='modal on';renderPay();
+}
+function payTotals(){
+ const sub=cartSum(),svc=Math.round(sub*0.1);
+ let promoDisc=0;
+ if(state.pay.promo){const p=PROMOS.find(x=>x.code===state.pay.promo&&x.active);
+  if(p)promoDisc=p.type==='pct'?Math.round(sub*p.val/100):Math.min(p.val,sub);}
+ const tip=state.pay.pct==null?(state.pay.custom||0):Math.round(sub*state.pay.pct/100);
+ const baseAfter=sub+svc-promoDisc;
+ const tier=tierOf(GUEST.points);
+ const maxRed=tier.k==='STANDARD'?0:Math.min(GUEST.points,Math.floor(baseAfter*0.5));
+ const red=Math.min(state.pay.redeem||0,maxRed);
+ return {sub,svc,promoDisc,tip,maxRed,red,total:baseAfter+tip-red,tier};
+}
+function setTipPct(p){state.pay.pct=p;renderPay();}
+function setTipCustom(v){state.pay.custom=+v||0;repaintPay();}
+function setPayMethod(m){state.pay.m=m;renderPay();}
+function setRedeem(v){state.pay.redeem=Math.min(v,payTotals().maxRed);renderPay();}
+function applyPromo(){
+ const code=($('promo-in').value||'').trim().toUpperCase();
+ if(!code)return;
+ const p=PROMOS.find(x=>x.code===code&&x.active);
+ if(p){state.pay.promo=p.code;state.pay.promoErr='';toast('Промокод применён: '+p.code);}
+ else{state.pay.promo=null;state.pay.promoErr='Промокод не найден или больше не активен';}
+ renderPay();
+}
+function clearPromo(){state.pay.promo=null;state.pay.promoErr='';renderPay();}
+function repaintPay(){
+ const t=payTotals();
+ if($('pv-tip'))$('pv-tip').textContent=money(t.tip);
+ if($('pv-promo'))$('pv-promo').textContent=t.promoDisc?'− '+money(t.promoDisc):'—';
+ if($('pv-red'))$('pv-red').textContent=t.red?'− '+money(t.red):'—';
+ if($('pv-total'))$('pv-total').textContent=money(t.total);
+ if($('pv-earn'))$('pv-earn').textContent='+'+Math.round(t.total/50)+' БАЛЛОВ';
+ if($('paybtn')){$('paybtn').innerHTML=`<i data-lucide="hand-coins"></i>ОПЛАТИТЬ ${money(t.total)}`;lucide.createIcons();}
+}
+function renderPay(){
+ const m=$('modal');
+ if(state.pay.mode==='done'){
+  const {snap,oid,pts,bal}=state.pay;
+  m.innerHTML=`<div class="blk" style="width:400px;max-width:100%" onclick="event.stopPropagation()">
+   <div class="bp" style="text-align:center;padding:30px 20px">
+    <i data-lucide="check-circle-2" style="width:44px;height:44px;color:var(--acc)"></i>
+    <div class="disp" style="font:700 20px var(--f-disp);margin:12px 0 4px">ОПЛАЧЕНО</div>
+    <div class="mono" style="font-size:12px;color:var(--mut)">ЗАКАЗ ${oid} · ПЕРЕДАН НА КУХНЮ (IIKO)</div>
+   </div>
+   <div style="border-top:1px solid var(--line);padding:14px 18px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:4px"><span>Блюда</span><span class="mono">${money(snap.sub)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:4px"><span>Сервисный сбор</span><span class="mono">${money(snap.svc)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Чаевые команде</span><span class="mono" style="color:var(--acc)">${money(snap.tip)}</span></div>
+    ${snap.promoDisc?`<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Промокод ${state.pay.promoCode||''}</span><span class="mono" style="color:var(--acc)">− ${money(snap.promoDisc)}</span></div>`:''}
+    ${snap.red?`<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Списано баллов</span><span class="mono" style="color:var(--acc)">− ${money(snap.red)}</span></div>`:''}
+    <div style="display:flex;justify-content:space-between;align-items:center"><span class="disp" style="font:700 15px var(--f-disp)">ИТОГО</span><span class="disp" style="font:700 19px var(--f-disp)">${money(snap.total)}</span></div>
+    <div class="lbl" style="margin-top:10px;color:var(--acc)">+${pts} БАЛЛОВ · БАЛАНС ${bal}</div>
+   </div></div>`;
+  lucide.createIcons();return;
+ }
+ const t=payTotals();
+ const chips=[0,5,10,15].map(p=>`<button class="chip ${state.pay.pct===p?'on':''}" onclick="setTipPct(${p})">${p===0?'Без чаевых':p+'%'}</button>`).join('')
+  +`<button class="chip ${state.pay.pct==null?'on':''}" onclick="setTipPct(null)">Своя</button>`;
+ const rchips=t.maxRed>0
+  ?`<button class="chip ${state.pay.redeem===0?'on':''}" onclick="setRedeem(0)">Не списывать</button>
+    <button class="chip ${state.pay.redeem===500?'on':''}" onclick="setRedeem(500)">500</button>
+    <button class="chip ${state.pay.redeem===1000?'on':''}" onclick="setRedeem(1000)">1000</button>
+    <button class="chip ${state.pay.redeem===t.maxRed&&state.pay.redeem>0?'on':''}" onclick="setRedeem(${t.maxRed})">Макс · ${t.maxRed}</button>`
+  :`<span class="lbl">СПИСАНИЕ ДОСТУПНО С УРОВНЯ BLACK</span>`;
+ m.innerHTML=`<div class="blk" style="width:430px;max-width:100%" onclick="event.stopPropagation()">
+  <div class="bh"><span class="disp" style="font:700 14px var(--f-disp)">ОПЛАТА · НОМЕР ${GUEST.room}</span>
+   <button class="iconbtn" style="width:auto;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+  <div class="bp">
+   <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:4px"><span>Блюда</span><span class="mono">${money(t.sub)}</span></div>
+   <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:4px"><span>Сервисный сбор 10%</span><span class="mono">${money(t.svc)}</span></div>
+   <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:12px"><span>Чаевые персоналу</span><span class="mono" id="pv-tip" style="color:var(--acc)">${money(t.tip)}</span></div>
+   <div class="lbl" style="margin-bottom:8px">ЧАЕВЫЕ · 100% УХОДЯТ КОМАНДЕ F&B</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${chips}</div>
+   ${state.pay.pct==null?`<input type="number" min="0" placeholder="Сумма, ₽" value="${state.pay.custom||''}" style="margin-bottom:4px" oninput="setTipCustom(this.value)">`:''}
+   <div class="lbl" style="margin:14px 0 8px">ПРОМОКОД</div>
+   ${state.pay.promo?`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
+     <span class="tag acc">${state.pay.promo} · −${money(t.promoDisc)}</span>
+     <button class="chip" onclick="clearPromo()">Убрать</button>
+    </div>`
+   :`<div style="display:flex;gap:8px;margin-bottom:4px">
+     <input type="text" id="promo-in" placeholder="BB150" onkeydown="if(event.key==='Enter')applyPromo()">
+     <button class="btn sm" style="flex-shrink:0" onclick="applyPromo()">Применить</button>
+    </div>
+    ${state.pay.promoErr?`<div class="err">${state.pay.promoErr}</div>`:''}`}
+   <div class="lbl" style="margin:14px 0 8px">БАЛЛЫ BRUT ${t.tier.k} · ДОСТУПНО ${GUEST.points} (= ${money(GUEST.points)})</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${rchips}</div>
+   <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Промокод</span><span class="mono" id="pv-promo" style="color:var(--acc)">${t.promoDisc?'− '+money(t.promoDisc):'—'}</span></div>
+   <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:12px"><span>Списание баллами</span><span class="mono" id="pv-red" style="color:var(--acc)">${t.red?'− '+money(t.red):'—'}</span></div>
+   <div class="lbl" style="margin:14px 0 8px">СПОСОБ ОПЛАТЫ</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="chip ${state.pay.m==='room'?'on':''}" onclick="setPayMethod('room')">Списать с номера</button>
+    <button class="chip ${state.pay.m==='card'?'on':''}" onclick="setPayMethod('card')">Картой · Visa •• 4417</button>
+   </div>
+  </div>
+  <div style="border-top:1px solid var(--line);padding:16px 18px">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+    <span class="disp" style="font:700 16px var(--f-disp)">ИТОГО</span><span class="disp" id="pv-total" style="font:700 22px var(--f-disp)">${money(t.total)}</span></div>
+   <button class="btn acc" id="paybtn" style="width:100%;justify-content:center;padding:15px;font-size:13px" onclick="doPay()"><i data-lucide="hand-coins"></i>ОПЛАТИТЬ ${money(t.total)}</button>
+   <div class="lbl" id="pv-earn" style="margin-top:10px;text-align:center;color:var(--acc)">+${Math.round(t.total/50)} БАЛЛОВ ЗА ЭТОТ ЗАКАЗ</div>
+  </div>
+ </div>`;
+ lucide.createIcons();
+}
+function doPay(){
+ if(state.pay.mode!=='form')return;
+ const t=payTotals();
+ state.pay.mode='proc';renderPay();
+ setTimeout(()=>{
+  const items=Object.entries(state.cart).map(([id,q])=>{const mm=MENU.find(x=>x.id==id);return mm?{n:mm.name,q,p:mm.pr}:null;}).filter(Boolean);
+  const o={id:'О-'+(nextId++),guest:GUEST.name,room:GUEST.room,items,total:t.total,tip:t.tip,red:t.red,promoDisc:t.promoDisc,promoCode:state.pay.promo||'',time:tnow().slice(0,5),stage:0,auto:true,mine:true,created:Date.now(),
+   when:state.cartTime==='asap'?'как можно скорее':'к '+state.cartTime,note:state.cartNote,pay:state.pay.m};
+  state.orders.unshift(o);
+  const pts=Math.round(t.total/50);
+  const before=tierOf(GUEST.points).k;
+  GUEST.points=GUEST.points-t.red+pts;
+  const after=tierOf(GUEST.points);
+  if(t.red)PTX.unshift({d:0,t:'Списание баллов · '+o.id,v:-t.red});
+  PTX.unshift({d:0,t:'Начисление · '+o.id,v:+pts});
+  if(after.k!==before){PTX.unshift({d:0,t:'Новый уровень · '+after.k,v:0});setTimeout(()=>toast('Новый уровень BRUT '+after.k+' — преимущества уже активны'),1500);}
+  if(t.promoDisc){const p=PROMOS.find(x=>x.code===state.pay.promo);if(p)p.used++;}
+  state.tipsToday+=t.tip;
+  state.cart={};state.cartNote='';state.iikoSync=tnow();
+  notify('loyalty','coins',`+${pts} баллов на счёт`,`Заказ ${o.id} · баланс ${GUEST.points} · уровень ${after.k}`);
+  state.pay.mode='done';state.pay.snap=t;state.pay.oid=o.id;state.pay.pts=pts;state.pay.bal=GUEST.points;state.pay.promoCode=o.promoCode;
+  renderPay();
+  setTimeout(()=>{closeAll();toast(`Заказ ${o.id} оплачен · +${pts} баллов · чаевые ${money(t.tip)} переданы команде`);render();},1800);
+ },1100);
+}
+
+/* ================= ЗАКАЗЫ ================= */
+function track(st){return `<div class="track">${[0,1,2,3].map(i=>`<i class="${i<st?'f':(i===st&&st<3)?'c':''}"></i>`).join('')}</div>`;}
+function gOrders(){
+ const mine=state.orders.filter(o=>o.mine&&o.stage<3);
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">03 / МОИ ЗАКАЗЫ · НОМЕР ${GUEST.room}</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">СТАТУСЫ ONLINE</div>
+ </div>
+ <div class="lbl" style="margin-bottom:10px">АКТИВНЫЕ</div>
+ <div class="blk" style="margin-bottom:24px">
+ ${mine.length?mine.map(o=>`
+  <div style="padding:15px 16px;border-bottom:1px solid var(--line)">
+   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:11px">
+    <span class="disp" style="font:700 14px var(--f-disp)">${o.id}</span>
+    <span class="mono" style="font-size:11px;color:var(--mut)">${o.time} · ${o.when}</span>
+    <span class="tag ${o.stage===0?'':o.stage<3?'acc':'fill'}">${ST[o.stage].toUpperCase()}</span>
+    ${o.tip?`<span class="tag acc">ЧАЕВЫЕ ${money(o.tip)}</span>`:''}
+    <span class="lbl" style="margin-left:auto">${ETA[o.stage]}</span>
+   </div>
+   <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:200px;font-size:13.5px">${o.items.map(i=>`${i.n} × ${i.q}`).join(' · ')}</div>
+    ${track(o.stage)}
+    <span class="num" style="font-size:14px">${money(o.total)}</span>
+   </div>
+  </div>`).join('')
+ :`<div style="padding:26px 16px" class="lbl">АКТИВНЫХ ЗАКАЗОВ НЕТ</div>`}
+ </div>
+ <div class="lbl" style="margin-bottom:10px">ИСТОРИЯ · ЭТО ПРОЖИВАНИЕ</div>
+ <div class="blk">
+  ${state.orders.filter(o=>o.mine&&o.stage===3).map(o=>`
+   <div class="row"><span class="mono" style="font-size:11px;color:var(--mut);width:100px">СЕГОДНЯ · ${o.time}</span>
+    <div class="grow"><div class="ttl" style="font-size:13.5px">${o.items.map(i=>`${i.n} × ${i.q}`).join(' · ')}</div>
+     ${o.tip?`<div class="mono" style="font-size:10px;color:var(--acc);margin-top:2px">+ ЧАЕВЫЕ ${money(o.tip)}${o.promoDisc?` · ПРОМО ${o.promoCode} −${money(o.promoDisc)}`:''}</div>`:''}</div>
+    <span class="tag fill">ДОСТАВЛЕН</span><span class="mono" style="font-size:12px">${money(o.total)}</span></div>`).join('')}
+  ${HIST.map(h=>{const d=addDays(h.d);return `
+   <div class="row"><span class="mono" style="font-size:11px;color:var(--mut);width:100px">${dsh(d)} · ${h.t}</span>
+    <div class="grow"><div class="ttl" style="font-size:13.5px">${h.items.map(i=>`${i.n} × ${i.q}`).join(' · ')}</div></div>
+    <span class="tag dim">ДОСТАВЛЕН</span><span class="mono" style="font-size:12px">${money(h.items.reduce((s,i)=>s+i.p*i.q,0))}</span></div>`;}).join('')}
+ </div>`;
+}
+
+/* ================= ГОСТЬ: СПА ================= */
+function gSpa(){
+ const mine=state.spaBookings.filter(b=>b.mine).sort((a,b)=>(a.day-b.day)||a.time.localeCompare(b.time));
+ const tier=tierOf(GUEST.points),disc=SPA_DISC[tier.k]||0;
+ return `
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px">
+  <div>
+   <div class="lbl">СПА-ЗОНА · 2 ЭТАЖ · 08:00–22:00 · ЗАПИСЬ МГНОВЕННАЯ</div>
+   <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">СПА · 1С:СПА</div>
+  </div>
+  <div class="lbl">ВАШ УРОВЕНЬ ${tier.k} · СКИДКА ${disc}%</div>
+ </div>
+ ${mine.length?`
+ <div class="lbl" style="margin-bottom:10px">МОИ ЗАПИСИ</div>
+ <div class="blk" style="margin-bottom:24px">
+  ${mine.map(b=>`
+   <div class="row"><i data-lucide="calendar-clock" class="ic"></i>
+    <div class="grow"><div class="ttl">${b.t}</div><div class="sub mono" style="font-size:10.5px">${b.day===0?'СЕГОДНЯ':'ЗАВТРА'} · ${b.time} · ${b.dur} МИН · ${money(b.pr)}</div></div>
+    <span class="tag dim">${b.pay==='номер'?'НА НОМЕР':'НА МЕСТЕ'}</span>
+    <span class="tag ${b.st===1?'acc':b.st===2?'fill':''}">${ST_S[b.st].toUpperCase()}</span>
+    ${b.st<2?`<button class="btn sm ghost" onclick="cancelSpa(${b.id})">Отменить</button>`:''}
+   </div>`).join('')}
+ </div>`:''}
+ <div class="lbl" style="margin-bottom:10px">ПРОЦЕДУРЫ</div>
+ <div class="blk">
+  ${SPA.map((s,i)=>{const price=Math.round(s.pr*(100-disc)/100);return `
+   <div class="mrow ${s.stop?'stoprow':''}">
+    <span class="idx">${String(i+1).padStart(2,'0')}</span>
+    <div style="flex:1;min-width:0">
+     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="nm">${s.name}</span><span class="tag dim">${s.dur} МИН</span>${s.stop?'<span class="tag fill">СТОП</span>':''}</div>
+     <div class="ds">${s.ds}</div>
+    </div>
+    <span class="pr">${disc>0?`<s style="font:500 11px 'JetBrains Mono';color:var(--mut);margin-right:6px">${money(s.pr)}</s>`:''}${money(price)}</span>
+    ${s.stop?'<span class="tag dim">НЕТ ОКОН</span>':`<button class="btn sm" onclick="openSpa('${s.id}')"><i data-lucide="clock-3"></i>Время</button>`}
+   </div>`;}).join('')}
+ </div>
+ <div class="lbl" style="margin-top:14px">ЗАПИСЬ СРАЗУ ПОЯВЛЯЕТСЯ У АДМИНИСТРАТОРА СПА В 1С:СПА · ОПЛАТА НА НОМЕР ИЛИ НА МЕСТЕ</div>`;
+}
+function openSpa(tId){const s=SPA.find(x=>x.id===tId);if(!s||s.stop){toast('Процедура временно недоступна');return;}
+ state.sp={t:tId,day:0,time:null,pay:'номер'};renderSpaD();$('drawer').classList.add('open');$('ovl').classList.add('on');lucide.createIcons();}
+function renderSpaD(){
+ const s=SPA.find(x=>x.id===state.sp.t);
+ const tier=tierOf(GUEST.points),disc=SPA_DISC[tier.k]||0;
+ const price=Math.round(s.pr*(100-disc)/100);
+ const dayCh=[0,1].map(d=>`<button class="chip ${state.sp.day===d?'on':''}" onclick="state.sp.day=${d};state.sp.time=null;renderSpaD()">${d===0?'Сегодня':'Завтра'} · ${dsh(addDays(d))}</button>`).join('');
+ const slots=SLOT.map(t=>{const taken=(TAKEN[state.sp.day]||[]).includes(t);
+  return `<button class="slot ${state.sp.time===t?'on':''}" ${taken?'disabled':''} onclick="state.sp.time='${t}';renderSpaD()">${t}</button>`;}).join('');
+ $('drawer').innerHTML=`
+  <div class="bh" style="padding:16px 18px"><span class="disp" style="font:700 15px var(--f-disp)">ЗАПИСЬ В СПА</span>
+   <button class="iconbtn" style="width:auto;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+  <div style="flex:1;overflow-y:auto">
+   <div class="bp" style="border-bottom:1px solid var(--line)">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-weight:600;font-size:16px">${s.name}</span><span class="tag dim">${s.dur} МИН</span></div>
+    <div style="font-size:12.5px;color:var(--mut);margin-top:4px">${s.ds}</div>
+    <div class="disp" style="font:700 17px var(--f-disp);margin-top:10px">${disc>0?`<s style="font:500 12px 'JetBrains Mono';color:var(--mut)">${money(s.pr)}</s> `:''}${money(price)}</div>
+    ${disc>0?`<div class="lbl acc" style="margin-top:5px">СКИДКА УРОВНЯ ${tier.k} · −${disc}%</div>`:''}
+   </div>
+   <div style="padding:16px 18px">
+    <div class="lbl" style="margin-bottom:9px">ДАТА</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">${dayCh}</div>
+    <div class="lbl" style="margin-bottom:9px">ВРЕМЯ ${state.sp.day===0?'· СЕГОДНЯ':'· ЗАВТРА'}</div>
+    <div class="slots">${slots}</div>
+    <div class="lbl" style="margin:16px 0 9px">ОПЛАТА</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+     <button class="chip ${state.sp.pay==='номер'?'on':''}" onclick="state.sp.pay='номер';renderSpaD()">Списать на номер</button>
+     <button class="chip ${state.sp.pay==='место'?'on':''}" onclick="state.sp.pay='место';renderSpaD()">Оплатить на месте</button>
+    </div>
+   </div>
+  </div>
+  <div style="border-top:1px solid var(--line);padding:16px 18px">
+   <button class="btn acc" style="width:100%;justify-content:center;padding:15px;font-size:13px" ${state.sp.time?'':'disabled'} onclick="bookSpa()"><i data-lucide="calendar-clock"></i>Записаться${state.sp.time?' на '+state.sp.time:''}</button>
+  </div>`;
+ lucide.createIcons();
+}
+function bookSpa(){
+ const s=SPA.find(x=>x.id===state.sp.t);
+ const tier=tierOf(GUEST.points),disc=SPA_DISC[tier.k]||0;
+ const b={id:state.spaNext++,guest:GUEST.name,room:GUEST.room,t:s.name,day:state.sp.day,time:state.sp.time,dur:s.dur,pr:Math.round(s.pr*(100-disc)/100),pay:state.sp.pay,st:0,mine:true};
+ state.spaBookings.push(b);
+ if(!TAKEN[state.sp.day])TAKEN[state.sp.day]=[];
+ TAKEN[state.sp.day].push(state.sp.time);
+ state.onecSync=tnow();
+ notify('spa','calendar-clock','СПА-запись подтверждена',`${s.name} · ${state.sp.day===0?'сегодня':'завтра'} в ${state.sp.time} · администратор уведомлён`);
+ closeAll();toast(`Вы записаны: ${s.name}, ${state.sp.day===0?'сегодня':'завтра'} в ${state.sp.time}`);
+ render();
+}
+function cancelSpa(id){
+ const b=state.spaBookings.find(x=>x.id===id);
+ state.spaBookings=state.spaBookings.filter(x=>x.id!==id);
+ if(b&&TAKEN[b.day])TAKEN[b.day]=TAKEN[b.day].filter(t=>t!==b.time);
+ state.onecSync=tnow();toast('Запись отменена · 1С:СПА обновлена');render();
+}
+
+/* ================= ГОСТЬ: СЕРВИСЫ ================= */
+function toggleDnd(){state.dnd=!state.dnd;toast(state.dnd?'Табличка «Не беспокоить» активна':'Режим «Не беспокоить» выключен');}
+function reqService(label,key){if(state.reqSent[key])return;state.reqSent[key]=true;
+ state.requests.unshift({id:'Р-'+(Math.floor(Math.random()*80)+12),label,room:GUEST.room,time:tnow().slice(0,5),st:'new'});
+ state.onecSync=tnow();
+ toast(`Заявка «${label}» отправлена · ресепшен уже видит её у себя`);}
+function toggleAmen(n){state.amenSet.has(n)?state.amenSet.delete(n):state.amenSet.add(n);render();}
+function sendAmen(){if(!state.amenSet.size)return;reqService('Принадлежности: '+[...state.amenSet].join(', ').toLowerCase(),'amen');state.amenSet=new Set();}
+function gServices(){
+ const S=k=>state.reqSent[k];
+ const row=(ic,ttl,sub,ctrl)=>`<div class="row"><i data-lucide="${ic}" class="ic"></i><div class="grow"><div class="ttl">${ttl}</div><div class="sub">${sub}</div></div>${ctrl}</div>`;
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">04 / СЛУЖБА НОМЕРНОГО ФОНДА · ЗАЯВКИ УХОДЯТ В 1С:ОТЕЛЬ</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">СЕРВИСЫ</div>
+ </div>
+ <div class="grid"><div class="c8">
+  <div class="blk">
+  ${row('sparkles','Ежедневная уборка','Горничная подойдёт в течение 2 часов',
+    S('clean')?'<span class="tag fill">ЗАЯВКА ПРИНЯТА</span>':'<button class="btn sm" onclick="reqService(\'Уборка номера\',\'clean\')">Запросить</button>')}
+  ${row('bell-off','Не беспокоить','Блокируем визиты горничной и звонки',
+    `<div class="tgl ${state.dnd?'on':''}" onclick="toggleDnd()"><i></i></div>`)}
+  ${row('clock-3','Поздний выезд','До 15:00 в день выезда · бесплатно с уровня TITAN',
+    S('late')?'<span class="tag fill">ОТПРАВЛЕНО В 1С</span>':'<button class="btn sm" onclick="reqService(\'Поздний выезд до 15:00\',\'late\')">Запросить</button>')}
+  ${row('car-front','Трансфер','Аэропорт / вокзал, подтверждение в чате',
+    S('taxi')?'<span class="tag fill">РЕСЕПШЕН ПОДТВЕРДИТ В ЧАТЕ</span>':'<button class="btn sm" onclick="reqService(\'Трансфер\',\'taxi\')">Заказать</button>')}
+  ${row('shirt','Утюг и гладильная доска','Доставка в номер — 15 минут',
+    S('iron')?'<span class="tag fill">УЖЕ В ПУТИ</span>':'<button class="btn sm" onclick="reqService(\'Утюг и гладильная доска\',\'iron\')">Запросить</button>')}
+  </div>
+  <div class="blk" style="margin-top:16px">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">ЗАБЫЛИ ЧТО-ТО?</span><span class="lbl">БЕСПЛАТНО</span></div>
+   <div class="bp">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+     ${['Зубная щётка','Бритва','Шампунь','Тапочки','Расчёска','Ватные палочки'].map(a=>`<button class="chip ${state.amenSet.has(a)?'on':''}" onclick="toggleAmen('${a}')">${a}</button>`).join('')}
+    </div>
+    <button class="btn" ${state.amenSet.size?'':'disabled'} onclick="sendAmen()"><i data-lucide="package"></i>Запросить выбранное</button>
+   </div>
+  </div>
+ </div>
+ <div class="c4">
+  <div class="blk dark bp">
+   <div class="lbl" style="margin-bottom:10px">КАК ЭТО РАБОТАЕТ</div>
+   <div style="font-size:13px;line-height:1.65;color:var(--dk-fg)">Заявка мгновенно падает в панель дежурного менеджера и в модуль «Домоуправление» <b>1С:Отель</b>. Горничная и engineering получают задачу со статусом — вы видите подтверждение здесь.</div>
+   <div class="mono" style="font-size:10px;color:var(--dk-mut);margin-top:14px">LAST SYNC · 1С:ОТЕЛЬ ${state.onecSync}</div>
+  </div>
+ </div></div>`;
+}
+
+/* ================= ГОСТЬ: ПРОФИЛЬ ================= */
+function gProfile(){
+ const me=CRM[0];
+ const top=topStats();const mx=top[0][1].q;
+ const spent=HIST.reduce((s,h)=>s+h.items.reduce((x,i)=>x+i.p*i.q,0),0);
+ const tier=tierOf(GUEST.points);
+ const next=TIERS[TIERS.findIndex(t=>t.k===tier.k)+1];
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">05 / ПРОФИЛЬ ГОСТЯ · СИНХРОНИЗИРОВАН С 1С:ОТЕЛЬ</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">${GUEST.name.toUpperCase()}</div>
+ </div>
+ <div class="grid">
+  <div class="c5" style="display:flex;flex-direction:column;gap:16px">
+   <div class="blk dark bp">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+     <div><div class="lbl">УРОВЕНЬ ЛОЯЛЬНОСТИ</div><div style="font:700 24px var(--f-disp);margin-top:5px;color:var(--acc)">BRUT ${tier.k}</div></div>
+     <div style="text-align:right"><div style="font:700 26px var(--f-disp)">${GUEST.points}</div><div class="lbl">БАЛЛОВ</div></div>
+    </div>
+    ${next?`<div class="lbl" style="margin-bottom:6px">ДО «BRUT ${next.k}» — ${Math.max(0,next.min-GUEST.points)} БАЛЛОВ</div>
+    <div style="height:9px;border:1px solid var(--dk-line)"><div style="height:100%;width:${Math.min(100,Math.round(GUEST.points/next.min*100))}%;background:var(--acc)"></div></div>`:'<div class="lbl acc">МАКСИМАЛЬНЫЙ УРОВЕНЬ ДОСТИГНУТ</div>'}
+    <div style="margin-top:14px;border-top:1px solid var(--dk-line);padding-top:12px">
+     ${tier.ben.map(b=>`<div style="display:flex;gap:8px;font-size:12.5px;line-height:1.7"><i data-lucide="check" style="width:14px;height:14px;color:var(--acc);flex-shrink:0;margin-top:3px"></i><span>${b}</span></div>`).join('')}
+    </div>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ИСТОРИЯ БАЛЛОВ</span><span class="tag dim">1 БАЛЛ = 1 ₽</span></div>
+    ${PTX.slice(0,7).map(p=>`
+     <div class="ptx"><span class="mono" style="font-size:10px;color:var(--mut);width:44px;flex-shrink:0">${p.d===0?'СЕГОДНЯ':dsh(addDays(p.d))}</span>
+      <span style="flex:1;font-size:12.5px">${p.t}</span>
+      <span class="mono" style="font-weight:700;color:${p.v>0?'var(--acc)':p.v<0?'var(--mut)':'inherit'}">${p.v>0?'+':''}${p.v}</span></div>`).join('')}
+   </div>
+   <div style="border:1px solid var(--acc);padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+     <span class="lbl acc">ДЕНЬ РОЖДЕНИЯ</span><i data-lucide="cake" style="width:18px;height:18px"></i></div>
+    <div class="disp" style="font:700 24px var(--f-disp)">${dstr(addDays(GUEST.bdayIn))}</div>
+    <div style="font-size:13px;color:var(--mut);margin-top:7px;line-height:1.55">Через ${GUEST.bdayIn} ${plural(GUEST.bdayIn,['день','дня','дней'])} — комплимент от шефа, бутылка вина и поздний выезд.</div>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ЦИФРОВОЙ КЛЮЧ</span><span class="lbl">BLUETOOTH · NFC</span></div>
+    <div class="qrwrap"><canvas id="qr-canvas" width="210" height="210"></canvas></div>
+    <div style="text-align:center;padding:0 16px 16px">
+     <div class="mono" style="font-size:12px">ДОСТУП: НОМЕР ${GUEST.room} · ДО ${dsh(GUEST.out)} 12:00</div>
+    </div>
+   </div>
+  </div>
+  <div class="c7" style="display:flex;flex-direction:column;gap:16px">
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">УВЕДОМЛЕНИЯ И ПУШИ</span>
+     <span class="tag ${state.push.perm==='granted'?'acc':'dim'}">${state.push.perm==='granted'?'РАЗРЕШЕНИЕ ВЫДАНО':state.push.perm==='denied'?'ЗАБЛОКИРОВАНО':'РАЗРЕШЕНИЕ НЕ ВЫДАНО'}</span></div>
+    <div class="row"><i data-lucide="bell-ring" class="ic"></i>
+     <div class="grow"><div class="ttl">Push на устройстве</div><div class="sub">Статусы заказов, спа и баллы приходят даже когда приложение закрыто</div></div>
+     ${state.push.perm==='granted'?'<span class="tag fill">ВКЛЮЧЕНЫ</span>':'<button class="btn sm" onclick="askPush()">Разрешить</button>'}</div>
+    ${[['orders','Статусы заказов','Готовится · курьер выехал · доставлено'],
+       ['spa','Спа-записи','Подтверждения, напоминания за час'],
+       ['news','Афиша и новости','События отеля — пуш за день до начала'],
+       ['loyalty','Баллы и акции','Начисления, новый уровень, промокоды']].map(([k,t,s])=>`
+     <div class="row"><i data-lucide="sliders-horizontal" class="ic"></i>
+      <div class="grow"><div class="ttl">${t}</div><div class="sub">${s}</div></div>
+      <div class="tgl ${state.push.prefs[k]?'on':''}" onclick="togPush('${k}')"><i></i></div></div>`).join('')}
+    <div class="row"><i data-lucide="send" class="ic"></i>
+     <div class="grow"><div class="ttl">Проверить пуши</div><div class="sub">Отправить тестовое уведомление</div></div>
+     <button class="btn sm ghost" onclick="testPush()">Тест</button></div>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ВАШИ ПРИОРИТЕТЫ · АВТОРАСЧЁТ ИЗ ИСТОРИИ</span></div>
+    <div class="bp">
+     <div style="display:flex;gap:30px;flex-wrap:wrap;margin-bottom:18px">
+      <div><div style="font:700 32px var(--f-disp)">${HIST.length}</div><div class="lbl">ЗАКАЗОВ ВСЕГО</div></div>
+      <div><div style="font:700 32px var(--f-disp)">${money(spent).replace(' ₽','')}</div><div class="lbl">₽ ЗА ПРОЖИВАНИЕ</div></div>
+      <div><div style="font:700 32px var(--f-disp)">${HIST.filter(h=>h.t<'12:00').length}</div><div class="lbl">УТРЕННИХ ЗАКАЗОВ</div></div>
+     </div>
+     ${top.slice(0,5).map(([n,v],i)=>`
+      <div class="hbar"><span class="n">${n}</span>
+       <div class="bar"><i class="${i===0?'acc':''}" style="width:${Math.round(v.q/mx*100)}%"></i></div>
+       <span class="v">${v.q}×</span></div>`).join('')}
+    </div>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ИСТОРИЯ ВИЗИТОВ</span><span class="tag acc">${me.visits}-Й ВИЗИТ · С ${me.since}</span></div>
+    ${me.stays.map(s=>`
+     <div class="row"><i data-lucide="bed-double" class="ic"></i>
+      <div class="grow"><div class="ttl" style="font-size:13.5px">${s.p}</div><div class="sub">${s.n} ${plural(s.n,['ночь','ночи','ночей'])} · номер ${s.room}</div></div>
+      <span class="tag dim">1С</span><span class="mono" style="font-weight:600">${money(s.spend)}</span></div>`).join('')}
+    <div class="row"><div class="grow"><span class="lbl">ВСЕГО ЗА ВСЕ ВИЗИТЫ · F&B И СПА ВКЛЮЧЕНЫ</span></div>
+     <span class="num" style="font-size:17px">${money(me.life)}</span></div>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ПРИЛОЖЕНИЕ И СЕАНС</span></div>
+    <div class="row"><i data-lucide="smartphone" class="ic"></i>
+     <div class="grow"><div class="ttl">Установить на телефон</div><div class="sub">Android — кнопка «Установить» · iPhone — «Поделиться» → «На экран Домой»</div></div>
+     <button class="btn sm" id="prof-install" style="display:none" onclick="installApp()">Установить</button></div>
+    <div class="row"><i data-lucide="log-out" class="ic"></i>
+     <div class="grow"><div class="ttl">Выйти из аккаунта</div><div class="sub">Сессия на этом устройстве будет завершена</div></div>
+     <button class="btn sm ghost" onclick="logout()">Выйти</button></div>
+   </div>
+  </div>
+ </div>`;
+}
+function drawKey(cv,seed){
+ if(!cv)return;
+ const cs=getComputedStyle(document.documentElement);
+ const cBg=cs.getPropertyValue('--panel').trim()||'#E5E2DB';
+ const cInk=cs.getPropertyValue('--ink').trim()||'#161512';
+ const n=25,s=cv.width/n;
+ let h=1779033703;for(let i=0;i<seed.length;i++){h=Math.imul(h^seed.charCodeAt(i),3432918353);h=h<<13|h>>>19;}
+ let a=h>>>0;const rnd=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+ const c=cv.getContext('2d');c.fillStyle=cBg;c.fillRect(0,0,cv.width,cv.height);c.fillStyle=cInk;
+ const fin=(x,y)=>(x<9&&y<9)||(x>n-10&&y<9)||(x<9&&y>n-10);
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){if(fin(x,y))continue;if(rnd()<0.44)c.fillRect(x*s,y*s,s,s);}
+ const f=(fx,fy)=>{c.fillRect(fx*s,fy*s,7*s,7*s);c.fillStyle=cBg;c.fillRect((fx+1)*s,(fy+1)*s,5*s,5*s);c.fillStyle=cInk;c.fillRect((fx+2)*s,(fy+2)*s,3*s,3*s);};
+ f(0,0);f(n-7,0);f(0,n-7);
+}
+function openKey(){
+ $('modal').className='modal on';
+ $('modal').innerHTML=`<div class="blk" style="width:380px;max-width:100%" onclick="event.stopPropagation()">
+  <div class="bh"><span class="disp" style="font:700 15px var(--f-disp)">ЦИФРОВОЙ КЛЮЧ · ${GUEST.room}</span>
+   <button class="iconbtn" style="width:auto;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+  <div class="qrwrap"><canvas id="qr-modal" width="230" height="230"></canvas></div>
+  <div style="text-align:center;padding:0 18px 18px">
+   <div class="mono" style="font-size:12.5px">GUEST: ${GUEST.name.toUpperCase()} · ДО ${dsh(GUEST.out)} 12:00</div>
+   <div class="lbl" style="margin-top:8px">Ключ активен, пока идёт проживание · обновляется из 1С:Отель</div>
+  </div></div>`;
+ drawKey($('qr-modal'),'BB-412-SOKOLOV');lucide.createIcons();
+}
+
+/* ================= ПЕРСОНАЛ: ОБЗОР ================= */
+function sDash(){
+ const maxH=Math.max(...HRS.map(x=>x[1]));
+ const newReq=state.requests.filter(r=>r.st!=='done');
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">ПАНЕЛЬ ДЕЖУРНОГО МЕНЕДЖЕРА · ${dstr(now).toUpperCase()} · СМЕНА 08:00–20:00</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">ОБЗОР ОПЕРАЦИЙ</div>
+ </div>
+ <div class="blk kpi" style="margin-bottom:16px">
+  <div>
+   <div class="lbl">ЗАГРУЗКА ОТЕЛЯ · 1С</div>
+   <div class="v">86%</div>
+   <div style="height:8px;border:1px solid var(--line);margin-top:6px"><div style="height:100%;width:86%;background:var(--ink)"></div></div>
+   <div class="mono" style="font-size:10px;color:var(--mut);margin-top:6px">103 ИЗ 120 НОМЕРОВ</div>
+  </div>
+  <div><div class="lbl">ВЫРУЧКА F&B · СЕГОДНЯ</div><div class="v">74 280 <span style="font-size:16px">₽</span></div><div class="mono" style="font-size:10px;color:var(--acc)">+12% К ВЧЕРАШНЕМУ ДНЮ</div></div>
+  <div><div class="lbl">ЗАКАЗОВ · IIKO</div><div class="v">${37+state.orders.filter(o=>o.mine).length}</div><div class="mono" style="font-size:10px;color:var(--mut)">СРЕДНИЙ ЧЕК 2 007 ₽</div></div>
+  <div><div class="lbl">ЧАЕВЫЕ · СМЕНА</div><div class="v" style="color:var(--acc)">${state.tipsToday.toLocaleString('ru-RU')} <span style="font-size:16px">₽</span></div><div class="mono" style="font-size:10px;color:var(--mut)">100% КОМАНДЕ F&B</div></div>
+ </div>
+ <div class="blk bp mono" style="display:flex;gap:24px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-bottom:16px;letter-spacing:.6px">
+  <span>НОМЕРА · 412 000 ₽</span><span>СПА · ${money(state.spaBookings.filter(b=>b.day===0).reduce((s,b)=>s+b.pr,0))}</span><span>ПОВТОРНЫЕ ГОСТИ · 68%</span><span>БАЛЛОВ У ГОСТЕЙ · 9 780</span><span>СРЕДНЕЕ ПРОЖИВАНИЕ · 3,2 НОЧИ</span>
+ </div>
+ <div class="grid">
+  <div class="c4">
+   <div class="blk" style="height:100%">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ЗАКАЗЫ ПО ЧАСАМ · СЕГОДНЯ</span><span class="tag dim">IIKO</span></div>
+    <div class="bp" style="display:flex;align-items:flex-end;gap:7px;height:170px">
+     ${HRS.map(([h,v])=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end">
+      <span class="mono" style="font-size:9px;color:var(--mut)">${v}</span>
+      <div style="width:100%;height:${Math.round(v/maxH*100)}%;background:${v===maxH?'var(--acc)':'var(--ink)'}"></div>
+      <span class="mono" style="font-size:9px">${h}</span></div>`).join('')}
+    </div>
+   </div>
+  </div>
+  <div class="c4">
+   <div class="blk" style="height:100%">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ТОП БЛЮД · 7 ДНЕЙ</span><span class="tag dim">IIKO</span></div>
+    <div class="bp">
+     ${TOPW.map(([n,v],i)=>`<div class="hbar"><span class="n">${n}</span><div class="bar"><i class="${i===0?'acc':''}" style="width:${Math.round(v/TOPW[0][1]*100)}%"></i></div><span class="v">${v}</span></div>`).join('')}
+    </div>
+   </div>
+  </div>
+  <div class="c4" style="display:flex;flex-direction:column;gap:16px">
+   <div class="blk dark bp">
+    <div class="lbl" style="margin-bottom:9px">ДНИ РОЖДЕНИЯ · БЛИЖАЙШИЕ</div>
+    <div style="font-size:13.5px;line-height:1.7">
+     ${BDAYS.filter(b=>b.off<=3).map(b=>`<div style="display:flex;gap:8px;align-items:center"><b>${b.name}</b><span class="mono" style="color:var(--dk-mut)">· ${b.room}</span>
+      ${b.off===0?'<span class="tag acc">СЕГОДНЯ</span>':`<span class="mono" style="font-size:10px;color:var(--acc)">+${b.off} ${plural(b.off,['день','дня','дней'])}</span>`}</div>`).join('')}
+    </div>
+    <button class="btn sm" style="margin-top:13px" onclick="setTab('guests')">Подготовить комплименты<i data-lucide="chevron-right"></i></button>
+   </div>
+   <div class="blk" style="flex:1">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ЗАПРОСЫ ГОСТЕЙ</span><span class="tag ${newReq.length?'acc':'dim'}">${newReq.length} АКТИВНЫХ</span></div>
+    ${newReq.length?newReq.map(r=>`
+     <div class="row"><div class="grow"><div class="ttl" style="font-size:13.5px">${r.label}</div><div class="sub mono" style="font-size:10.5px">НОМЕР ${r.room} · ${r.time} · ИЗ ПРИЛОЖЕНИЯ</div></div>
+      <span class="tag ${r.st==='new'?'acc':'dim'}">${r.st==='new'?'НОВЫЙ':'В РАБОТЕ'}</span>
+      <button class="btn sm" onclick="doneReq('${r.id}')"><i data-lucide="check"></i></button></div>`).join('')
+    :`<div class="lbl" style="padding:22px 16px">ВСЁ ВЫПОЛНЕНО</div>`}
+   </div>
+  </div>
+ </div>`;
+}
+function doneReq(id){const r=state.requests.find(x=>x.id===id);if(r){r.st='done';toast(`${r.id} · «${r.label}» — выполнено, гость уведомлён пушем`);render();}}
+
+/* ================= ПЕРСОНАЛ: ЗАЕЗДЫ ================= */
+function checkin(id){const b=BOOKINGS.find(x=>x.id===id);b.st='in';state.onecSync=tnow();toast(`Номер ${b.room} заселён · ${b.guest} · записано в 1С:Отель`);}
+function checkout(id){const b=BOOKINGS.find(x=>x.id===id);b.st='done';state.onecSync=tnow();toast(`Выезд из номера ${b.room} оформлен · 1С:Отель`);}
+function sFront(){
+ const bset={booked:['','ЗАБРОНИРОВАН'],in:['fill','ЗАСЕЛЁН'],out:['acc','ВЫЕЗД СЕГОДНЯ'],done:['dim','ВЫЕХАЛ']};
+ const mk=b=>`
+  <tr><td class="mono" style="font-weight:700">${b.room}</td>
+  <td><b>${b.guest}</b></td><td class="mono" style="font-size:11.5px;color:var(--mut)">${b.dates} · ${b.note}</td>
+  <td><span class="tag dim">1С</span></td>
+  <td><span class="tag ${bset[b.st][0]}">${bset[b.st][1]}</span></td>
+  <td>${b.st==='booked'?`<button class="btn sm" onclick="checkin(${b.id})"><i data-lucide="key-round"></i>Заселить</button>`
+      :b.st==='out'?`<button class="btn sm ghost" onclick="checkout(${b.id})">Отметить выезд</button>`
+      :b.st==='in'?'<span class="lbl">—</span>':'<i data-lucide="check" style="width:15px"></i>'}</td></tr>`;
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">МОДУЛЬ «МЕНЕДЖЕР» · ДВУСТОРОННЯЯ СИНХРОНИЗАЦИЯ · ${state.onecSync}</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">ЗАЕЗДЫ · ВЫЕЗДЫ</div>
+ </div>
+ <div class="grid">
+  <div class="c7"><div class="blk">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">ЗАЕЗДЫ СЕГОДНЯ</span><span class="tag dim">ИСТОЧНИК: 1С:ОТЕЛЬ</span></div>
+   <table class="tb"><thead><tr><th>№</th><th>Гость</th><th>Даты</th><th></th><th>Статус</th><th></th></tr></thead>
+   <tbody>${BOOKINGS.filter(b=>b.st==='booked'||b.st==='in').map(mk).join('')}</tbody></table>
+  </div></div>
+  <div class="c5"><div class="blk">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">ВЫЕЗДЫ СЕГОДНЯ</span><span class="tag acc">ДЕДЛАЙН 12:00</span></div>
+   <table class="tb"><thead><tr><th>№</th><th>Гость</th><th>Даты</th><th></th><th>Статус</th><th></th></tr></thead>
+   <tbody>${BOOKINGS.filter(b=>b.st==='out'||b.st==='done').map(mk).join('')}</tbody></table>
+   <div class="bp" style="border-top:1px solid var(--line)">
+    <div class="lbl" style="margin-bottom:8px">ЧЕК-ЛИСТ ВЫЕЗДА</div>
+    <div style="font-size:12.5px;line-height:1.8;color:var(--mut)">Мини-бар (iiko) → счёт на номер → осмотр горничной → оплата → аннуляция ключа в приложении гостя</div>
+   </div>
+  </div></div>
+ </div>`;
+}
+
+/* ================= ПЕРСОНАЛ: КУХНЯ ================= */
+function nextStage(id){const o=state.orders.find(x=>x.id===id);if(!o||o.stage>=3)return;o.stage++;o.manual=true;state.iikoSync=tnow();
+ toast(`${o.id} · номер ${o.room} → «${ST[o.stage]}»`);render();}
+function sKitchen(){
+ const sorted=[...state.orders].sort((a,b)=>(a.stage===3)-(b.stage===3));
+ const NEXT=['Начать готовку','Передать курьеру','Подтвердить доставку'];
+ return `
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px">
+  <div>
+   <div class="lbl">КУХНЯ И СЕРВИС-ДОСТАВКА · ЖИВАЯ ОЧЕРЕДЬ · ${state.iikoSync}</div>
+   <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">ЗАКАЗЫ · IIKO</div>
+  </div>
+  <div class="lbl">ЗАКАЗЫ ИЗ ПРИЛОЖЕНИЯ ГОСТЯ ПРИХОДЯТ СЮДА АВТОМАТИЧЕСКИ</div>
+ </div>
+ <div class="blk">
+  <table class="tb"><thead><tr><th>Заказ</th><th>Номер / гость</th><th>Состав</th><th>Сумма</th><th>Статус</th><th></th></tr></thead>
+  <tbody>${sorted.map(o=>`
+   <tr ${o.mine&&o.stage<3?'style="background:color-mix(in srgb,var(--acc) 7%,transparent)"':''}>
+    <td><span class="mono" style="font-weight:700">${o.id}</span><div class="mono" style="font-size:10px;color:var(--mut)">${o.time}</div>
+     ${o.mine?'<span class="tag acc" style="margin-top:5px">ПРИЛОЖЕНИЕ</span>':''}</td>
+    <td><b>${o.room}</b><div style="font-size:12px;color:var(--mut)">${o.guest}</div></td>
+    <td style="font-size:12.5px;max-width:260px">${o.items.map(i=>`${i.n} × ${i.q}`).join(' · ')}
+     ${o.note?`<div class="mono" style="font-size:10px;color:var(--acc)">КОММ.: ${o.note}</div>`:''}</td>
+    <td class="mono" style="font-weight:600">${money(o.total)}
+     ${o.tip?`<div class="mono" style="font-size:10px;color:var(--acc)">+ ЧАЕВЫЕ ${money(o.tip)}</div>`:''}
+     ${o.promoDisc?`<div class="mono" style="font-size:10px;color:var(--mut)">ПРОМО ${o.promoCode} −${o.promoDisc}</div>`:''}
+     ${o.red?`<div class="mono" style="font-size:10px;color:var(--mut)">БАЛЛЫ −${o.red}</div>`:''}</td>
+    <td><span class="tag ${o.stage===0?'':o.stage<3?'acc':'fill'}">${ST[o.stage].toUpperCase()}</span>
+     <div style="margin-top:7px;width:120px">${track(o.stage)}</div></td>
+    <td>${o.stage<3?`<button class="btn sm" onclick="nextStage('${o.id}')">${NEXT[o.stage]}</button>`:'<span class="lbl">ГОТОВО</span>'}</td>
+   </tr>`).join('')}</tbody></table>
+ </div>`;
+}
+
+/* ================= ПЕРСОНАЛ: СПА ================= */
+function advanceSpa(id){const b=state.spaBookings.find(x=>x.id===id);if(!b||b.st>=2)return;b.st++;state.onecSync=tnow();
+ toast(`СП-${id} · ${b.guest} → «${ST_S[b.st]}»`);render();}
+function sSpa(){
+ const list=[...state.spaBookings].sort((a,b)=>(a.day-b.day)||a.time.localeCompare(b.time));
+ const day0=state.spaBookings.filter(b=>b.day===0);
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">АДМИНИСТРАТОР СПА · ДВУСТОРОННЯЯ СИНХРОНИЗАЦИЯ · ${state.onecSync}</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">СПА · 1С:СПА</div>
+ </div>
+ <div class="blk kpi" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:16px">
+  <div><div class="lbl">ЗАПИСЕЙ СЕГОДНЯ</div><div class="v">${day0.length}</div></div>
+  <div><div class="lbl">ЗАГРУЗКА СЕТКИ</div><div class="v">62%</div><div style="height:8px;border:1px solid var(--line);margin-top:6px"><div style="height:100%;width:62%;background:var(--acc)"></div></div></div>
+  <div><div class="lbl">ВЫРУЧКА СПА · СЕГОДНЯ</div><div class="v">${day0.reduce((s,b)=>s+b.pr,0).toLocaleString('ru-RU')} <span style="font-size:16px">₽</span></div></div>
+ </div>
+ <div class="blk">
+  <table class="tb"><thead><tr><th>Время</th><th>Гость</th><th>Процедура</th><th>Оплата</th><th>Статус</th><th></th></tr></thead>
+  <tbody>${list.map(b=>`
+   <tr ${b.mine&&b.st<2?'style="background:color-mix(in srgb,var(--acc) 7%,transparent)"':''}>
+    <td><span class="mono" style="font-weight:700">${b.day===0?'СЕГОДНЯ':'ЗАВТРА'}</span><div class="mono" style="font-size:12px">${b.time}</div></td>
+    <td><b>${b.guest}</b><div style="font-size:12px;color:var(--mut)">НОМЕР ${b.room}</div></td>
+    <td style="font-size:12.5px;max-width:220px">${b.t}<div class="mono" style="font-size:10px;color:var(--mut)">${b.dur} МИН · ${money(b.pr)}</div></td>
+    <td><span class="tag dim">${b.pay==='номер'?'НА НОМЕР':'НА МЕСТЕ'}</span></td>
+    <td><span class="tag ${b.st===1?'acc':b.st===2?'fill':''}">${ST_S[b.st].toUpperCase()}</span></td>
+    <td>${b.st<2?`<button class="btn sm" onclick="advanceSpa(${b.id})">${b.st===0?'Подтвердить':'Выполнить'}</button>`:'<i data-lucide="check" style="width:15px"></i>'}</td>
+   </tr>`).join('')}</tbody></table>
+ </div>
+ <div class="lbl" style="margin-top:14px">ЗАПИСИ ИЗ ПРИЛОЖЕНИЯ ГОСТЯ ПОЯВЛЯЮТСЯ ЗДЕСЬ МГНОВЕННО · ОТМЕНЫ ТОЖЕ</div>`;
+}
+
+/* ================= ПЕРСОНАЛ: CRM ================= */
+function compliment(name){state.complimented.add(name);state.iikoSync=tnow();toast(`Комплимент для «${name}» отправлен на кухню (iiko) · задача горничной создана в 1С`);}
+function crmRows(q){
+ const list=CRM.filter(g=>(g.name+' '+g.room).toLowerCase().includes(q));
+ return list.map(g=>`
+  <div class="row" style="cursor:pointer" onclick="renderCrm(${g.id})">
+   <div class="grow"><div class="ttl">${g.name}
+    ${g.vip?'<span class="tag acc">VIP</span>':''}
+    <span class="tag dim">${g.tier}</span></div>
+    <div class="sub mono" style="font-size:10.5px">НОМЕР ${g.room} · ВИЗИТОВ ${g.visits} · С ${g.since} · ${g.pts} БАЛЛОВ</div></div>
+   <div style="text-align:right;flex-shrink:0"><div class="num">${money(g.life)}</div><div class="lbl">LTV</div></div>
+   <i data-lucide="chevron-right"></i>
+  </div>`).join('')||`<div class="lbl" style="padding:20px 16px">НИЧЕГО НЕ НАЙДЕНО</div>`;
+}
+function crmFilter(){$('crmList').innerHTML=crmRows(($('crmSearch').value||'').toLowerCase());lucide.createIcons();}
+function addNote(gid){
+ const g=CRM.find(x=>x.id===gid);const v=$('note-in').value.trim();if(!v)return;
+ g.notes.unshift({d:dsh(now),by:state.session.name||'Менеджер',t:v});
+ renderCrm(gid);toast('Заметка сохранена в профиле гостя');
+}
+function renderCrm(gid){
+ const g=CRM.find(x=>x.id===gid);const avg=Math.round(g.life/g.visits);
+ $('drawer').innerHTML=`
+ <div class="bh" style="padding:16px 18px"><div><div class="disp" style="font:700 15px var(--f-disp)">${g.name.toUpperCase()}</div>
+  <div class="lbl" style="margin-top:3px">НОМЕР ${g.room} · BRUT ${g.tier} · ${g.pts} БАЛЛОВ</div></div>
+  <button class="iconbtn" style="width:auto;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+ <div style="flex:1;overflow-y:auto">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--line)">
+   ${[[g.visits,'ВИЗИТОВ'],[money(g.life),'LTV · ВСЕГО'],[money(avg),'СРЕДНИЙ ЧЕК'],[g.spaVisits,'СПА-ВИЗИТОВ']].map(([v,l],i)=>`
+    <div style="padding:13px 13px;border-left:${i?'1px solid var(--line)':'none'}">
+     <div style="font:700 18px var(--f-disp)">${v}</div><div class="lbl" style="margin-top:3px">${l}</div></div>`).join('')}
+  </div>
+  <div class="bh"><span class="lbl" style="color:var(--ink)">ПРОЖИВАНИЯ · 1С:ОТЕЛЬ</span></div>
+  ${g.stays.map(s=>`
+   <div class="row"><i data-lucide="bed-double" class="ic"></i>
+    <div class="grow"><div class="ttl" style="font-size:13.5px">${s.p}</div><div class="sub">${s.n} ${plural(s.n,['ночь','ночи','ночей'])} · номер ${s.room}</div></div>
+    <span class="tag dim">1С</span><span class="mono" style="font-weight:600">${money(s.spend)}</span></div>`).join('')}
+  <div class="bh"><span class="lbl" style="color:var(--ink)">ЧАЩЕ ВСЕГО ЗАКАЗЫВАЕТ · IIKO</span></div>
+  <div class="bp">${g.top.map(([n,v],i)=>`
+   <div class="hbar"><span class="n">${n}</span><div class="bar"><i class="${i===0?'acc':''}" style="width:${Math.round(v/g.top[0][1]*100)}%"></i></div><span class="v">${v}×</span></div>`).join('')}</div>
+  <div class="bh"><span class="lbl" style="color:var(--ink)">ПРЕДПОЧТЕНИЯ И ОСОБЕННОСТИ</span></div>
+  <div class="bp">
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${g.prefs.map(p=>`<span class="tag">${p}</span>`).join('')}</div>
+   <div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--ink)">Аллергии:</b> ${g.allergy} · <b style="color:var(--ink)">Спа:</b> последний визит ${g.lastSpa}</div>
+  </div>
+  <div class="bh"><span class="lbl" style="color:var(--ink)">ЗАМЕТКИ ПЕРСОНАЛА</span><span class="tag dim">${g.notes.length}</span></div>
+  ${g.notes.length?g.notes.map(n=>`
+   <div class="row"><div class="grow"><div class="ttl" style="font-size:13px;line-height:1.4">${n.t}</div>
+    <div class="sub mono" style="font-size:10px">${n.d} · ${n.by}</div></div></div>`).join('')
+  :`<div class="lbl" style="padding:16px">ЗАМЕТОК ПОКА НЕТ</div>`}
+  <div style="padding:12px 15px;display:flex;gap:8px;border-top:1px solid var(--line)">
+   <input type="text" id="note-in" placeholder="Новая заметка: пожелание, ситуация…" onkeydown="if(event.key==='Enter')addNote(${g.id})">
+   <button class="btn sm" onclick="addNote(${g.id})"><i data-lucide="plus"></i></button>
+  </div>
+ </div>`;
+ $('drawer').classList.add('open');$('ovl').classList.add('on');lucide.createIcons();
+}
+function sGuests(){
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">ЕДИНЫЙ ПРОФИЛЬ ГОСТЯ · 1С:ОТЕЛЬ + IIKO + 1С:СПА · ${state.onecSync}</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">ГОСТИ · CRM</div>
+ </div>
+ <div class="grid">
+  <div class="c7"><div class="blk">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">БАЗА ГОСТЕЙ · НАЖМИТЕ ДЛЯ ПОЛНОГО ПРОФИЛЯ</span><span class="tag dim">${CRM.length} ГОСТЕЙ</span></div>
+   <div style="padding:10px 15px;border-bottom:1px solid var(--line)"><input type="text" id="crmSearch" placeholder="Поиск: имя или номер…" oninput="crmFilter()"></div>
+   <div id="crmList">${crmRows('')}</div>
+  </div></div>
+  <div class="c5" style="display:flex;flex-direction:column;gap:16px">
+   <div class="blk dark bp">
+    <div class="lbl" style="margin-bottom:14px">ПОРТРЕТ КЛИЕНТСКОЙ БАЗЫ</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+     <div><div style="font:700 30px var(--f-disp)">68%</div><div class="lbl">ПОВТОРНЫЕ ГОСТИ</div></div>
+     <div><div style="font:700 30px var(--f-disp)">148К ₽</div><div class="lbl">СРЕДНИЙ LTV</div></div>
+    </div>
+    <div class="mono" style="font-size:10px;color:var(--dk-mut);line-height:1.7">СПА-ЗАПИСЕЙ СЕГОДНЯ: ${state.spaBookings.filter(b=>b.day===0).length} · ИСТОЧНИКИ: 1С:ОТЕЛЬ + IIKO + 1С:СПА + ПРИЛОЖЕНИЕ</div>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ДНИ РОЖДЕНИЯ</span><span class="tag acc">КОМПЛИМЕНТЫ</span></div>
+    ${BDAYS.map(b=>{const mine=b.room===GUEST.room;
+     const prefs=mine?topStats().slice(0,3).map(t=>`${t[0]} ×${t[1].q}`).join(' · '):b.pref;
+     const sent=state.complimented.has(b.name);
+     return `<div class="row" ${b.off===0?'style="background:color-mix(in srgb,var(--acc) 7%,transparent)"':''}>
+      <i data-lucide="cake" class="ic" ${b.off===0?'style="color:var(--acc)"':''}></i>
+      <div class="grow"><div class="ttl" style="font-size:13.5px">${b.name} <span class="mono" style="font-size:11px;color:var(--mut)">· ${b.room}</span></div>
+       <div class="sub">Предпочтения: ${prefs}</div></div>
+      ${b.off===0?'<span class="tag acc">ДР СЕГОДНЯ</span>':`<span class="mono" style="font-size:11px;color:var(--mut)">+${b.off} ${plural(b.off,['ДЕНЬ','ДНЯ','ДНЕЙ'])}</span>`}
+      ${sent?'<span class="tag fill">ОТПРАВЛЕНО</span>':`<button class="btn sm" onclick="compliment('${b.name}')">Комплимент</button>`}
+     </div>`;}).join('')}
+   </div>
+  </div>
+ </div>`;
+}
+
+/* ================= ПЕРСОНАЛ: АДМИНКА ================= */
+function sAdmin(){
+ const t=state.adminTab;
+ const segs=[['menu','Меню · iiko'],['news','Афиша'],['promos','Промокоды'],['spa','Спа · 1С:СПА']];
+ let body='';
+ if(t==='menu'){
+  body=`<div class="blk">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">НОМЕНКЛАТУРА · ЦЕНЫ И СТОП-ЛИСТ</span><span class="tag dim">СИНК ${state.iikoSync}</span></div>
+   ${MENU.map(m=>`
+    <div class="row" style="gap:10px;flex-wrap:wrap;${m.stop?'opacity:.5':''}">
+     <input type="text" style="flex:2;min-width:150px" value="${m.name}" onchange="admName(${m.id},this.value)">
+     <select style="width:130px;flex-shrink:0" onchange="admCat(${m.id},this.value)">
+      ${CATS.map(([c])=>`<option ${m.cat===c?'selected':''}>${c}</option>`).join('')}
+     </select>
+     <input type="number" style="width:90px;flex-shrink:0" value="${m.pr}" onchange="admPrice(${m.id},this.value)">
+     <span class="lbl" style="width:64px;flex-shrink:0">СТОП</span>
+     <div class="tgl ${m.stop?'on':''}" onclick="admStop(${m.id})"><i></i></div>
+     <button class="iconbtn" style="width:38px;border:1px solid var(--line)" onclick="admDel(${m.id})"><i data-lucide="trash-2"></i></button>
+    </div>`).join('')}
+   <div class="row" style="gap:10px;flex-wrap:wrap;background:var(--panel2)">
+    <input type="text" id="am-n" placeholder="Новое блюдо…" style="flex:2;min-width:150px">
+    <select id="am-c" style="width:130px;flex-shrink:0">${CATS.map(([c])=>`<option>${c}</option>`).join('')}</select>
+    <input type="number" id="am-p" placeholder="₽" style="width:90px;flex-shrink:0">
+    <button class="btn sm" onclick="admAdd()"><i data-lucide="plus"></i>Добавить</button>
+   </div>
+  </div>`;
+ }else if(t==='news'){
+  const dOpts=n=>[0,1,2,3,5,7].map(d=>`<option value="${d}" ${n.d==d?'selected':''}>${d===0?'Сегодня':d===1?'Завтра':'+'+d+' дн.'}</option>`).join('');
+  body=`<div class="blk">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">АФИША И НОВОСТИ · ПУБЛИКАЦИЯ В ГОСТЕВОЕ ПРИЛОЖЕНИЕ</span><span class="tag acc">${NEWS.length} СОБЫТИЙ</span></div>
+   ${NEWS.map(n=>`
+    <div class="row" style="gap:10px;flex-wrap:wrap">
+     <select style="width:110px;flex-shrink:0" onchange="newsDate(${n.id},this.value)">${dOpts(n)}</select>
+     <input type="text" style="flex:1;min-width:160px" value="${n.t}" onchange="newsTitle(${n.id},this.value)">
+     <input type="text" style="flex:2;min-width:180px" value="${n.sub}" onchange="newsSub(${n.id},this.value)">
+     <button class="iconbtn" style="width:38px;border:1px solid var(--line)" onclick="newsDel(${n.id})"><i data-lucide="trash-2"></i></button>
+    </div>`).join('')}
+   <div class="row" style="gap:10px;flex-wrap:wrap;background:var(--panel2)">
+    <select id="an-d" style="width:110px;flex-shrink:0">${dOpts({d:0})}</select>
+    <input type="text" id="an-t" placeholder="Заголовок события…" style="flex:1;min-width:160px">
+    <input type="text" id="an-s" placeholder="Описание, место, время…" style="flex:2;min-width:180px">
+    <button class="btn sm" onclick="newsAdd()"><i data-lucide="plus"></i>Опубликовать</button>
+   </div>
+  </div>`;
+ }else if(t==='promos'){
+  body=`<div class="blk">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">ПРОМОКОДЫ · F&B И СПА</span><span class="tag acc">${PROMOS.filter(p=>p.active).length} АКТИВНЫХ</span></div>
+   ${PROMOS.map((p,i)=>`
+    <div class="row" style="gap:10px;flex-wrap:wrap;${p.active?'':'opacity:.5'}">
+     <span class="mono" style="font-weight:700;font-size:14px;width:110px;flex-shrink:0">${p.code}</span>
+     <span class="tag dim">${p.type==='pct'?'ПРОЦЕНТ':'ФИКС ₽'}</span>
+     <input type="number" style="width:90px;flex-shrink:0" value="${p.val}" onchange="promoVal(${i},this.value)">
+     <span class="lbl" style="flex:1;min-width:100px">${p.note} · ИСПОЛЬЗОВАН ${p.used}×</span>
+     <span class="lbl" style="width:52px;flex-shrink:0">ВКЛ</span>
+     <div class="tgl ${p.active?'on':''}" onclick="promoTgl(${i})"><i></i></div>
+     <button class="iconbtn" style="width:38px;border:1px solid var(--line)" onclick="promoDel(${i})"><i data-lucide="trash-2"></i></button>
+    </div>`).join('')}
+   <div class="row" style="gap:10px;flex-wrap:wrap;background:var(--panel2)">
+    <input type="text" id="ap-c" placeholder="КОД" style="width:110px;flex-shrink:0;text-transform:uppercase">
+    <select id="ap-t" style="width:120px;flex-shrink:0"><option value="fixed">Фикс ₽</option><option value="pct">Процент %</option></select>
+    <input type="number" id="ap-v" placeholder="Значение" style="width:110px;flex-shrink:0">
+    <input type="text" id="ap-n" placeholder="Комментарий" style="flex:1;min-width:120px">
+    <button class="btn sm" onclick="promoAdd()"><i data-lucide="plus"></i>Создать</button>
+   </div>
+  </div>`;
+ }else{
+  body=`<div class="blk">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">ПРОЦЕДУРЫ · ЦЕНЫ И ОКНА</span><span class="tag dim">СИНК ${state.onecSync}</span></div>
+   ${SPA.map(s=>`
+    <div class="row" style="gap:10px;flex-wrap:wrap;${s.stop?'opacity:.5':''}">
+     <span style="flex:1;min-width:180px;font-weight:600;font-size:13.5px">${s.name} <span class="mono" style="font-size:10px;color:var(--mut)">· ${s.dur} МИН</span></span>
+     <input type="number" style="width:100px;flex-shrink:0" value="${s.pr}" onchange="spaPrice('${s.id}',this.value)">
+     <span class="lbl" style="width:52px;flex-shrink:0">СТОП</span>
+     <div class="tgl ${s.stop?'on':''}" onclick="spaStop('${s.id}')"><i></i></div>
+    </div>`).join('')}
+  </div>`;
+ }
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">CMS ПРИЛОЖЕНИЯ · ИЗМЕНЕНИЯ ПРИМЕНЯЮТСЯ НЕМЕДЛЕННО И УХОДЯТ В СИСТЕМЫ</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">УПРАВЛЕНИЕ</div>
+ </div>
+ <div class="segs" style="margin-bottom:16px">
+  ${segs.map(([k,l])=>`<button class="chip ${t===k?'on':''}" onclick="state.adminTab='${k}';render()">${l}</button>`).join('')}
+ </div>
+ ${body}
+ <div class="blk dark bp" style="margin-top:16px">
+  <div class="lbl" style="margin-bottom:8px">КАК ЭТО ПОПАДАЕТ В СИСТЕМЫ</div>
+  <div style="font-size:13px;line-height:1.6;color:var(--dk-fg)">Меню: PUT /v1/menu/items/:id → middleware кэш + флаг стоп-листа в iiko. Афиша: POST/PUT /v1/news → CMS middleware → пуш подписчикам категории news. Промокоды: CRUD /v1/promos, использование инкрементируется при оплате. Спа: PUT /v1/spa/services/:id → 1С:СПА. Все действия пишутся в audit_log.</div>
+ </div>`;
+}
+function admSync(msg){state.iikoSync=tnow();toast(msg);render();}
+function admName(id,v){const m=MENU.find(x=>x.id===id);if(m&&v.trim()){m.name=v.trim();admSync('Название обновлено · iiko синхронизирован');}}
+function admCat(id,v){const m=MENU.find(x=>x.id===id);if(m){m.cat=v;admSync('Категория изменена');}}
+function admPrice(id,v){const m=MENU.find(x=>x.id===id);if(m&&+v>0){m.pr=+v;admSync('Цена обновлена · гости увидят её при следующем открытии меню');}}
+function admStop(id){const m=MENU.find(x=>x.id===id);if(m){m.stop=!m.stop;admSync(m.stop?'Стоп-лист: позиция скрыта из заказа':'Позиция снова в продаже');}}
+function admDel(id){state.orders.forEach(o=>{});const i=MENU.findIndex(x=>x.id===id);if(i>-1){const n=MENU[i].name;MENU.splice(i,1);admSync('«'+n+'» удалена из меню');}}
+function admAdd(){
+ const n=$('am-n').value.trim(),p=+$('am-p').value,c=$('am-c').value;
+ if(!n||!p){toast('Укажите название и цену');return;}
+ MENU.push({id:Date.now()%1000000,cat:c,name:n,ds:'новая позиция · описание в iiko',pr:p,w:'—',tags:[]});
+ admSync('«'+n+'» добавлена в меню · отправлена в iiko');
+}
+function newsDate(id,v){const n=NEWS.find(x=>x.id===id);if(n){n.d=+v;n.tag=+v===0?'СЕГОДНЯ':'';render();toast('Дата публикации обновлена');}}
+function newsTitle(id,v){const n=NEWS.find(x=>x.id===id);if(n&&v.trim()){n.t=v.trim();toast('Заголовок сохранён');}}
+function newsSub(id,v){const n=NEWS.find(x=>x.id===id);if(n){n.sub=v;toast('Описание сохранено');}}
+function newsDel(id){const i=NEWS.findIndex(x=>x.id===id);if(i>-1){NEWS.splice(i,1);toast('Событие удалено из афиши');render();}}
+function newsAdd(){
+ const t=$('an-t').value.trim(),s=$('an-s').value.trim(),d=+$('an-d').value;
+ if(!t){toast('Укажите заголовок');return;}
+ NEWS.unshift({id:state.newsNext++,d,t,sub:s||'подробности на ресепшен',tag:d===0?'СЕГОДНЯ':'',ic:'sparkles'});
+ notify('news','sparkles','Новая публикация в афише',t);
+ toast('Опубликовано · гости увидят сразу, пуш уйдёт подписчикам');render();
+}
+function promoVal(i,v){if(PROMOS[i]&&+v>0){PROMOS[i].val=+v;toast('Значение промокода обновлено');}}
+function promoTgl(i){const p=PROMOS[i];if(!p)return;p.active=!p.active;
+ if(!p.active&&state.pay&&state.pay.promo===p.code)state.pay.promo=null;
+ toast(p.active?'Промокод '+p.code+' активирован':'Промокод '+p.code+' отключён');render();}
+function promoDel(i){const p=PROMOS[i];if(p){PROMOS.splice(i,1);toast('Промокод '+p.code+' удалён');render();}}
+function promoAdd(){
+ const c=($('ap-c').value||'').trim().toUpperCase(),v=+$('ap-v').value,t=$('ap-t').value,note=$('ap-n').value.trim()||'без комментария';
+ if(!c||!v){toast('Укажите код и значение');return;}
+ if(PROMOS.some(p=>p.code===c)){toast('Такой код уже существует');return;}
+ PROMOS.unshift({code:c,type:t,val:v,active:true,used:0,note});
+ toast('Промокод '+c+' создан и активен');render();
+}
+function spaPrice(id,v){const s=SPA.find(x=>x.id===id);if(s&&+v>0){s.pr=+v;state.onecSync=tnow();toast('Цена процедуры обновлена · 1С:СПА');render();}}
+function spaStop(id){const s=SPA.find(x=>x.id===id);if(s){s.stop=!s.stop;state.onecSync=tnow();toast(s.stop?'Процедура снята с записи':'Процедура снова доступна');render();}}
+
+/* ================= ПЕРСОНАЛ: API · ИНТЕГРАЦИИ ================= */
+const SAMPLES={
+ ord:`POST /v1/orders
+{
+  "room": "412",
+  "items": [
+    { "menuId": "iiko-11453", "qty": 2 },
+    { "menuId": "iiko-11500", "qty": 1 }
+  ],
+  "when": "asap",
+  "note": "без лука",
+  "tip": 200,
+  "promoCode": "BB150",
+  "redeemPoints": 500,
+  "idempotencyKey": "7be9f3c2-…"
+}
+201 Created
+{
+  "id": "ord_1043",
+  "status": "accepted",
+  "etaMin": 40,
+  "totals": { "items": 1690, "service": 169,
+    "tip": 200, "promo": -150, "points": -500, "grand": 1409 },
+  "iikoOrderId": "d3f1a8…"
+}`,
+ hook:`POST /hooks/iiko
+X-Signature: sha256=9f2c…
+{
+  "event": "order.status_changed",
+  "externalId": "d3f1a8…",
+  "orderId": "ord_1043",
+  "status": "cooking",
+  "etaMin": 25,
+  "ts": "2025-05-14T12:46:03+03:00"
+}
+200 OK (middleware рассылает пуш
+       order.status_changed гостю)`,
+ push:`{
+  "type": "loyalty.points_earned",
+  "title": "+84 балла на счёт",
+  "body": "Заказ ord_1043 · баланс 1 324 · BRUT BLACK",
+  "deepLink": "/orders/ord_1043",
+  "channels": ["fcm", "webpush"]
+}`,
+ stay:`GET /v1/bookings?date=2025-05-14
+[
+  {
+    "id": "1c-bk-8841",
+    "room": "205",
+    "guest": "Ольга Морозова",
+    "checkIn": "2025-05-14T14:00:00+03:00",
+    "checkOut": "2025-05-17T12:00:00+03:00",
+    "ratePlan": "Brut Standard",
+    "folioBalance": 0,
+    "source": "1C_Hotel"
+  }
+}`,
+};
+function epTgl(id){const el=$(id);if(el)el.hidden=!el.hidden;}
+function ep(m,p,d,s){
+ const sid=s?('s-'+p.replace(/[^a-z0-9]/gi,'')+m):null;
+ return `<div class="ep" ${sid?`onclick="epTgl('${sid}')"`:''}>
+  <span class="mth ${m==='DELETE'?'DEL':m}">${m==='DELETE'?'DEL':m}</span>
+  <span class="pth">${p}</span>
+  <span class="ds">${d}</span>
+  ${sid?'<i data-lucide="chevron-down"></i>':''}
+ </div>${sid?`<pre class="sample" id="${sid}" hidden>${SAMPLES[s]}</pre>`:''}`;
+}
+function sApi(){
+ return `
+ <div style="margin-bottom:20px">
+  <div class="lbl">КОНТРАКТЫ MIDDLEWARE · ЕДИНЫЙ ДОКУМЕНТ ДЛЯ РАЗРАБОТКИ, 1С И IIKO · ВЕРСИЯ V1.0</div>
+  <div class="disp" style="font:700 34px var(--f-disp);margin-top:6px">API · ИНТЕГРАЦИИ</div>
+ </div>
+ <div class="blk bp mono" style="display:flex;gap:22px;flex-wrap:wrap;font-size:10.5px;color:var(--mut);margin-bottom:16px;letter-spacing:.6px">
+  <span>СТЕК: NODE · NESTJS · POSTGRES · REDIS</span><span>SLA 99.5%</span><span>P95 &lt; 300 MS</span><span>JWT RS256</span><span>WEBHOOK HMAC-SHA256</span>
+ </div>
+ <div class="grid">
+  <div class="c5"><div class="blk" style="height:100%">
+   <div class="bh"><span class="lbl" style="color:var(--ink)">СХЕМА ВЗАИМОДЕЙСТВИЯ</span><span class="tag dim">АРХИТЕКТУРА</span></div>
+   <div class="arch">
+    <div class="bx"><b>КЛИЕНТЫ</b>PWA-браузер · Capacitor (iOS / Android)</div>
+    <div class="ar">↓ HTTPS · JWT access 15 мин + refresh</div>
+    <div class="bx"><b>MIDDLEWARE API</b>REST /v1 · кэш Redis · очередь событий · аудит</div>
+    <div class="ar">↓ ↓ ↓ ↓</div>
+    <div class="sysrow">
+     <div class="bx"><b>1С:ОТЕЛЬ</b>HTTP-сервисы / OData · опрос 30 с + пуш из 1С</div>
+     <div class="bx"><b>1С:СПА</b>HTTP-сервисы · расписание и записи</div>
+     <div class="bx"><b>IIKO CLOUD</b>open API · меню, стоп-листы, заказы</div>
+     <div class="bx"><b>ПЛАТЁЖНЫЙ ШЛЮЗ</b>эквайринг · чаевые · возвраты</div>
+    </div>
+    <div class="ar">↓ события</div>
+    <div class="bx"><b>PUSH-ШЛЮЗ</b>FCM (Android/iOS) · Web Push VAPID (PWA)</div>
+   </div>
+  </div></div>
+  <div class="c7" style="display:flex;flex-direction:column;gap:16px">
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">АВТОРИЗАЦИЯ</span><span class="tag dim">РОЛИ: GUEST · STAFF:FRONT/KITCHEN/SPA · STAFF:ADMIN</span></div>
+    ${ep('POST','/v1/auth/login','Вход: гостю — телефон+пароль (или SMS-OTP), персоналу — логин+пароль. Ответ: пара токенов + профиль')}
+    ${ep('POST','/v1/auth/refresh','Обновление access-токена по refresh (ротация refresh)')}
+    ${ep('POST','/v1/auth/logout','Инвалидация refresh-токена устройства')}
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ГОСТЬ · ЗАКАЗЫ И ОПЛАТА</span><span class="tag dim">IIKO + PSP + ЛОЯЛЬНОСТЬ</span></div>
+    ${ep('GET','/v1/menu','Категории и блюда из iiko: цена, вес, теги, флаг стоп-листа','ord')}
+    ${ep('POST','/v1/orders','Создать заказ в номер. Сервер считает итоги: сбор, промо, баллы, чаевые','ord')}
+    ${ep('GET','/v1/orders?active=1','Мои заказы: статус, ETA, состав; история за проживание')}
+    ${ep('POST','/v1/orders/:id/pay','Оплата: метод room/card, tip, promoCode, redeemPoints. Idempotency-Key обязателен')}
+    ${ep('PATCH','/v1/orders/:id/cancel','Отмена до статуса cooking')}
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ГОСТЬ · СПА, СЕРВИСЫ, ПРОЧЕЕ</span><span class="tag dim">1С:СПА + 1С:ОТЕЛЬ</span></div>
+    ${ep('GET','/v1/spa/services','Процедуры + персональная скидка уровня лояльности')}
+    ${ep('GET','/v1/spa/availability?date=','Свободные слоты по процедуре из сетки 1С:СПА')}
+    ${ep('POST','/v1/spa/bookings','Запись: serviceId, date, time, pay: room/onsite')}
+    ${ep('DELETE','/v1/spa/bookings/:id','Отмена (бесплатно раньше чем за 2 часа)')}
+    ${ep('POST','/v1/requests','Заявка: cleaning / dnd / late_checkout / taxi / amenities → 1С:Отель')}
+    ${ep('GET','/v1/news','Афиша и новости отеля (CMS middleware)')}
+    ${ep('GET','/v1/me','Профиль: проживание из 1С, тариф, цифровой ключ, лояльность')}
+    ${ep('GET','/v1/me/loyalty/tx','История баллов, курсорная пагинация')}
+    ${ep('PUT','/v1/me/push-settings','Категории пушей: orders, spa, news, loyalty')}
+    ${ep('POST','/v1/chat/messages','Чат с ресепшеном; live — WSS /v1/chat/ws')}
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ПЕРСОНАЛ И АДМИН</span><span class="tag dim">ПРАВА ПО CLAIM РОЛИ В JWT</span></div>
+    ${ep('GET','/v1/staff/dashboard','Загрузка, выручка F&B/спа, чаевые, активные заявки')}
+    ${ep('GET','/v1/bookings?date=','Заезды/выезды из 1С:Отель','stay')}
+    ${ep('POST','/v1/bookings/:id/checkin','Заселение; middleware инициирует выпуск цифрового ключа')}
+    ${ep('POST','/v1/bookings/:id/checkout','Выезд: фолио, аннуляция ключа')}
+    ${ep('GET','/v1/kitchen/orders','Живая очередь кухни (iiko + заказы приложения)')}
+    ${ep('PATCH','/v1/kitchen/orders/:id/status','accepted → cooking → delivering → done')}
+    ${ep('GET','/v1/crm/guests?q=','Поиск по CRM; /:id — визиты, LTV, топ, заметки')}
+    ${ep('POST','/v1/crm/guests/:id/notes','Заметка персонала (аудит: кто добавил)')}
+    ${ep('POST','/v1/crm/guests/:id/compliment','Комплимент: задача на кухню (iiko) + горничной (1С)')}
+    ${ep('PUT','/v1/menu/items/:id','Цена, категория, стоп-лист (роль staff:admin)')}
+    ${ep('POST','/v1/menu/sync','Принудительный ре-синк номенклатуры iiko')}
+    ${ep('POST','/v1/news','Публикация афиши; PUT/DELETE /v1/news/:id')}
+    ${ep('POST','/v1/promos','Создать промокод; PATCH /v1/promos/:code {active}')}
+    ${ep('PUT','/v1/spa/services/:id','Цена/стоп процедуры → 1С:СПА')}
+    ${ep('GET','/v1/analytics/summary','Выгрузка за период для BI (роль staff:admin)')}
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">ВХОДЯЩИЕ WEBHOOKS · MIDDLEWARE ← СИСТЕМЫ</span><span class="tag dim">ПОДПИСЬ X-SIGNATURE</span></div>
+    ${ep('POST','/hooks/iiko','order.status_changed · menu.updated · delivery.canceled','hook')}
+    ${ep('POST','/hooks/1c-hotel','booking.created/changed · stay.checked_in/out · folio.updated · key.issued/revoked')}
+    ${ep('POST','/hooks/1c-spa','spa.booking.changed · schedule.updated')}
+    ${ep('POST','/hooks/psp','payment.succeeded / failed / refunded')}
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">PUSH-СОБЫТИЯ · ИЗ MIDDLEWARE ГОСТЮ</span><span class="tag acc">КАТЕГОРИИ = НАСТРОЙКИ ГОСТЯ</span></div>
+    <table class="tb">
+     <thead><tr><th>Событие</th><th>Кат.</th><th>Payload</th><th>Правило</th></tr></thead>
+     <tbody>
+      <tr><td class="mono" style="font-size:11px">order.status_changed</td><td>orders</td><td style="font-size:12px">orderId, status, etaMin</td><td style="font-size:12px">всегда, на каждый переход</td></tr>
+      <tr><td class="mono" style="font-size:11px">spa.booking_confirmed</td><td>spa</td><td style="font-size:12px">bookingId, time</td><td style="font-size:12px">+ reminder за 1 час</td></tr>
+      <tr><td class="mono" style="font-size:11px">loyalty.points_earned</td><td>loyalty</td><td style="font-size:12px">delta, balance</td><td style="font-size:12px">сразу после оплаты</td></tr>
+      <tr><td class="mono" style="font-size:11px">loyalty.tier_changed</td><td>loyalty</td><td style="font-size:12px">tier</td><td style="font-size:12px">+ баннер в приложении</td></tr>
+      <tr><td class="mono" style="font-size:11px">news.published</td><td>news</td><td style="font-size:12px">newsId, title</td><td style="font-size:12px">+ напоминание за 24 ч до события</td></tr>
+      <tr><td class="mono" style="font-size:11px">chat.message</td><td>sys</td><td style="font-size:12px">threadId, preview</td><td style="font-size:12px">только если чат закрыт</td></tr>
+      <tr><td class="mono" style="font-size:11px">stay.checkout_reminder</td><td>sys</td><td style="font-size:12px">room, checkoutAt</td><td style="font-size:12px">за 12 ч до выезда</td></tr>
+     </tbody>
+    </table>
+    <div class="bp" style="border-top:1px solid var(--line)">
+     <div class="lbl" style="margin-bottom:6px">ПРАВИЛА ДОСТАВКИ</div>
+     <div style="font-size:12.5px;color:var(--mut);line-height:1.6">Каналы: FCM (Capacitor) и Web Push VAPID (PWA). Тихие часы 23:00–08:00 для всех категорий кроме orders и spa. Deep-link открывает нужный экран. Оффлайн-очередь с retry ×5, дедупликация по type+entityId.</div>
+    </div>
+   </div>
+   <div class="blk">
+    <div class="bh"><span class="lbl" style="color:var(--ink)">КОНВЕНЦИИ</span><span class="tag dim">ОБЯЗАТЕЛЬНО К СОБЛЮДЕНИЮ</span></div>
+    ${[['Версионирование','/v1 в пути. Обратно-совместимые изменения — без смены версии; breaking — через /v2 и период двойной поддержки.'],
+       ['Ошибки','Формат {error:{code,message,details[]}}; HTTP-коды стандартные (400/401/403/404/409/429/500).'],
+       ['Идемпотентность','Заголовок Idempotency-Key (UUID) обязателен для POST /orders и /orders/:id/pay — защита от двойного списания.'],
+       ['Пагинация','Курсорная: ?cursor&limit (max 100); ответ {items, nextCursor}.'],
+       ['Деньги','Суммы — целые (копейки), валюта RUB. Часовой пояс отеля UTC+3 во всех timestamp (ISO 8601, offset обязателен).'],
+       ['Лимиты','60 req/мин на гостя, 600 на сотрудника; при превышении 429 + Retry-After.'],
+       ['Аудит','Все админ-действия (цены, стоп-лист, промо, афиша) пишутся в audit_log: кто, что, когда, старое→новое значение.'],
+       ['Секреты','JWT RS256 (kid-ротация), webhook HMAC-SHA256, ключи систем в env: IIKO_API_KEY, 1C_CREDENTIALS, PSP_KEY, FCM_SERVER_KEY, VAPID_KEYS.']].map(([k,v])=>`
+     <div class="row"><span class="lbl" style="width:150px;flex-shrink:0">${k}</span><span style="font-size:12.5px;flex:1">${v}</span></div>`).join('')}
+   </div>
+   <div class="blk dark bp">
+    <div class="lbl" style="margin-bottom:8px">ЗАМЕТКИ ПО 1С И IIKO</div>
+    <div style="font-size:12.5px;line-height:1.7;color:var(--dk-fg)"><b>1С:Отель</b> — HTTP-сервисы пишутся как расширение конфигурации (или используем стандартный OData-доступ к регистрам); надёжнее гибрид: middleware опрашивает раз в 30 с, критичные события 1С дублирует своим HTTP-вызовом в middleware. Цифровой ключ — через замковую систему (Onity/Salto и т.п.), middleware хранит подписанный токен с TTL до выезда.<br><br><b>iiko</b> — iikoCloud API: access_token → nomenclature (меню), stoplists, deliveries (создание заказа). Webhook на смену статуса доставки включается на стороне iikoTransport. Стоп-лист приоритетнее кэша middleware.<br><br><b>Платежи</b> — двухшаговый флоу: authorize при «Оплатить», capture после подтверждения кухни; чаевые — отдельной строкой в чеке PSP; возвраты по PATCH.</div>
+   </div>
+  </div>
+ </div>`;
+}
+
+/* ================= ЧАТ ================= */
+function openChat(){
+ $('drawer').innerHTML=`
+  <div class="bh" style="padding:16px 18px"><div><div class="disp" style="font:700 15px var(--f-disp)">РЕСЕПШЕН</div>
+   <div class="lbl" style="margin-top:3px">НА СВЯЗИ · ОТВЕЧАЕМ ~2 МИН</div></div>
+   <button class="iconbtn" style="width:auto;border:none" onclick="closeAll()"><i data-lucide="x"></i></button></div>
+  <div id="chatbody" style="flex:1;overflow-y:auto;padding:16px">
+   ${state.chatMsgs.map(m=>`<div class="chatmsg ${m.who==='me'?'me':'rc'}">${m.txt}</div>`).join('')}
+  </div>
+  <div style="border-top:1px solid var(--line);padding:14px 16px;display:flex;gap:8px">
+   <input type="text" id="chatinput" placeholder="Сообщение…" onkeydown="if(event.key==='Enter')sendMsg()">
+   <button class="btn" onclick="sendMsg()"><i data-lucide="send"></i></button>
+  </div>`;
+ $('drawer').classList.add('open');$('ovl').classList.add('on');
+ state.chatMsgs.forEach(m=>m.seen=true);render();
+ const body=$('chatbody');if(body)body.scrollTop=body.scrollHeight;
+}
+function sendMsg(){
+ const inp=$('chatinput');if(!inp||!inp.value.trim())return;
+ state.chatMsgs.push({who:'me',txt:inp.value.trim()});inp.value='';
+ openChat();
+ setTimeout(()=>{state.chatMsgs.push({who:'rc',txt:'Приняли! Уточняем у ответственного и вернёмся в течение пары минут.'});
+  if($('drawer').classList.contains('open'))openChat();},1500);
+}
+
+/* ================= ТАЙМЕРЫ ================= */
+setInterval(()=>{$('clock').textContent=tnow();},1000);
+setInterval(()=>{
+ if(!state.session||state.role!=='guest')return;
+ let ch=false;
+ state.orders.forEach(o=>{
+  if(!o.auto||o.manual||o.stage>=3)return;
+  const t=(Date.now()-o.created)/1000;
+  const want=t<7?0:t<20?1:t<45?2:3;
+  if(want>o.stage){o.stage=want;ch=true;state.iikoSync=tnow();
+   notify('orders','chef-hat',`Заказ ${o.id}: ${ST[o.stage].toLowerCase()}`,`Номер ${o.room} · ${ETA[o.stage]}`);
+   if(o.stage===3)toast(`Заказ ${o.id} доставлен в номер ${o.room}. Приятного аппетита!`);}
+ });
+ if(ch&&state.gtab==='orders')render();
+},1000);
+
+/* ================= СТАРТ ================= */
+(function(){
+ const savedTheme=LS.get('bb_theme');
+ if(savedTheme&&THEMES.some(t=>t.k===savedTheme))document.documentElement.dataset.theme=savedTheme;
+})();
+ $('s-iiko').textContent='12:41:02';$('s-1c').textContent='12:39:47';
+setInterval(()=>{$('s-iiko').textContent=tnow();$('s-1c').textContent=tnow();},30000);
+ $('clock').textContent=tnow();
+(function restore(){
+ const s=LS.get('bb_session');
+ if(s&&s.role==='guest')state.session={role:'guest'};
+ else if(s&&s.role==='staff'){const f=STAFF.find(x=>x.u===s.u);if(f)state.session={role:'staff',...f};}
+})();
+render();
+</script>
+</body>
+</html>
