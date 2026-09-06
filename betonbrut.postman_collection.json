@@ -1,0 +1,401 @@
+{
+  "info": {
+    "name": "BETON BRUT · Middleware API v1",
+    "description": "Как пользоваться: 1) Import → этот файл. 2) В Variables коллекции задайте baseUrl. 3) Запустите «Вход · гость» — токены сохранятся автоматически. 4) Идите по папкам сверху вниз: заказ → оплата → кухня → CRM. Папка Webhooks — это то, что шлют СИСТЕМЫ middleware (для проверки руками).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "orderId", "value": "" },
+    { "key": "bookingId", "value": "" },
+    { "key": "stayId", "value": "1c-bk-8841" },
+    { "key": "guestId", "value": "1" },
+    { "key": "date", "value": "2025-06-01" }
+  ],
+  "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{accessToken}}", "type": "string" } ] },
+  "item": [
+    {
+      "name": "01 · Авторизация",
+      "item": [
+        {
+          "name": "Вход · гость",
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('accessToken', j.accessToken);",
+            "pm.collectionVariables.set('refreshToken', j.refreshToken);",
+            "console.log('Токены сохранены, роль:', j.role);"
+          ] } } ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"phone\": \"+79001234567\", \"password\": \"4121\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Вход · персонал (админ)",
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('accessToken', j.accessToken);",
+            "pm.collectionVariables.set('refreshToken', j.refreshToken);"
+          ] } } ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"login\": \"admin\", \"password\": \"brut2024\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Обновить токен",
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('accessToken', j.accessToken);",
+            "pm.collectionVariables.set('refreshToken', j.refreshToken);"
+          ] } } ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"refreshToken\": \"{{refreshToken}}\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Выход",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"refreshToken\": \"{{refreshToken}}\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 · Гость · Меню и заказы",
+      "item": [
+        {
+          "name": "Меню",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/menu", "host": ["{{baseUrl}}"], "path": ["menu"] }
+          }
+        },
+        {
+          "name": "Создать заказ",
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('orderId', j.id);",
+            "console.log('orderId =', j.id);"
+          ] } } ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{$guid}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"items\": [ { \"menuId\": \"iiko-11453\", \"qty\": 2 }, { \"menuId\": \"iiko-11500\", \"qty\": 1 } ], \"when\": \"asap\", \"note\": \"без лука\", \"tip\": 20000, \"promoCode\": \"BB150\", \"redeemPoints\": 0 }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
+          }
+        },
+        {
+          "name": "Мои заказы (активные)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/orders?active=true", "host": ["{{baseUrl}}"], "path": ["orders"], "query": [ { "key": "active", "value": "true" } ] }
+          }
+        },
+        {
+          "name": "Заказ по id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}"] }
+          }
+        },
+        {
+          "name": "Оплата (чаевые + промо + баллы)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{$guid}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"method\": \"card\", \"tip\": 20000, \"promoCode\": \"BB150\", \"redeemPoints\": 500 }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/pay", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "pay"] }
+          }
+        },
+        {
+          "name": "Отмена заказа",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · Гость · Спа и сервисы",
+      "item": [
+        {
+          "name": "Процедуры (со скидкой уровня)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/spa/services", "host": ["{{baseUrl}}"], "path": ["spa", "services"] }
+          }
+        },
+        {
+          "name": "Свободные слоты",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/spa/availability?serviceId=sp1&date={{date}}", "host": ["{{baseUrl}}"], "path": ["spa", "availability"], "query": [ { "key": "serviceId", "value": "sp1" }, { "key": "date", "value": "{{date}}" } ] }
+          }
+        },
+        {
+          "name": "Записаться",
+          "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('201 Created', () => pm.response.to.have.status(201));",
+            "const j = pm.response.json();",
+            "pm.collectionVariables.set('bookingId', j.id);"
+          ] } } ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"serviceId\": \"sp1\", \"date\": \"{{date}}\", \"time\": \"15:00\", \"pay\": \"room\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/spa/bookings", "host": ["{{baseUrl}}"], "path": ["spa", "bookings"] }
+          }
+        },
+        {
+          "name": "Отменить запись",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/spa/bookings/{{bookingId}}", "host": ["{{baseUrl}}"], "path": ["spa", "bookings", "{{bookingId}}"] }
+          }
+        },
+        {
+          "name": "Заявка в 1С (поздний выезд)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"type\": \"late_checkout\", \"comment\": \"до 15:00, пожалуйста\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/requests", "host": ["{{baseUrl}}"], "path": ["requests"] }
+          }
+        },
+        {
+          "name": "Афиша",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/news", "host": ["{{baseUrl}}"], "path": ["news"] }
+          }
+        },
+        {
+          "name": "Профиль гостя",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/me", "host": ["{{baseUrl}}"], "path": ["me"] }
+          }
+        },
+        {
+          "name": "История баллов",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/me/loyalty/tx", "host": ["{{baseUrl}}"], "path": ["me", "loyalty", "tx"] }
+          }
+        },
+        {
+          "name": "Настройки пушей",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"orders\": true, \"spa\": true, \"news\": false, \"loyalty\": true }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/me/push-settings", "host": ["{{baseUrl}}"], "path": ["me", "push-settings"] }
+          }
+        },
+        {
+          "name": "Сообщение ресепшену",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"text\": \"Добрый день! Занесите, пожалуйста, чайник в 412.\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/chat/messages", "host": ["{{baseUrl}}"], "path": ["chat", "messages"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 · Персонал",
+      "item": [
+        {
+          "name": "Дашборд смены",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/staff/dashboard", "host": ["{{baseUrl}}"], "path": ["staff", "dashboard"] }
+          }
+        },
+        {
+          "name": "Заезды/выезды дня",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/bookings?date={{date}}", "host": ["{{baseUrl}}"], "path": ["bookings"], "query": [ { "key": "date", "value": "{{date}}" } ] }
+          }
+        },
+        {
+          "name": "Заселить (выпуск ключа)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/bookings/{{stayId}}/checkin", "host": ["{{baseUrl}}"], "path": ["bookings", "{{stayId}}", "checkin"] }
+          }
+        },
+        {
+          "name": "Выезд (аннуляция ключа)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/bookings/{{stayId}}/checkout", "host": ["{{baseUrl}}"], "path": ["bookings", "{{stayId}}", "checkout"] }
+          }
+        },
+        {
+          "name": "Очередь кухни",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/kitchen/orders", "host": ["{{baseUrl}}"], "path": ["kitchen", "orders"] }
+          }
+        },
+        {
+          "name": "Сменить статус заказа",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"status\": \"cooking\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/kitchen/orders/{{orderId}}/status", "host": ["{{baseUrl}}"], "path": ["kitchen", "orders", "{{orderId}}", "status"] }
+          }
+        },
+        {
+          "name": "CRM · поиск гостей",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/crm/guests?q=соколов", "host": ["{{baseUrl}}"], "path": ["crm", "guests"], "query": [ { "key": "q", "value": "соколов" } ] }
+          }
+        },
+        {
+          "name": "CRM · профиль гостя",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/crm/guests/{{guestId}}", "host": ["{{baseUrl}}"], "path": ["crm", "guests", "{{guestId}}"] }
+          }
+        },
+        {
+          "name": "CRM · добавить заметку",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"text\": \"Просил столик у окна на завтраки\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/crm/guests/{{guestId}}/notes", "host": ["{{baseUrl}}"], "path": ["crm", "guests", "{{guestId}}", "notes"] }
+          }
+        },
+        {
+          "name": "CRM · комплимент",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"kind\": \"chef\", \"message\": \"Комплимент от шефа к дню рождения\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/crm/guests/{{guestId}}/compliment", "host": ["{{baseUrl}}"], "path": ["crm", "guests", "{{guestId}}", "compliment"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 · Админ (CMS)",
+      "item": [
+        {
+          "name": "Цена / стоп-лист блюда",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"price\": 95000, \"stopList\": true }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/menu/items/7", "host": ["{{baseUrl}}"], "path": ["menu", "items", "7"] }
+          }
+        },
+        {
+          "name": "Ре-синк меню из iiko",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/menu/sync", "host": ["{{baseUrl}}"], "path": ["menu", "sync"] }
+          }
+        },
+        {
+          "name": "Опубликовать событие",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"date\": \"{{date}}\", \"title\": \"Гастроужин «Бетон и огонь»\", \"body\": \"Шеф-стол на 24 персоны\", \"tag\": \"СОБЫТИЕ\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/news", "host": ["{{baseUrl}}"], "path": ["news"] }
+          }
+        },
+        {
+          "name": "Создать промокод",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"code\": \"SUMMER15\", \"type\": \"pct\", \"value\": 15, \"active\": true, \"note\": \"Летняя акция\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/promos", "host": ["{{baseUrl}}"], "path": ["promos"] }
+          }
+        },
+        {
+          "name": "Цена/стоп спа-процедуры",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"price\": 330000, \"stopList\": false }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/spa/services/sp2", "host": ["{{baseUrl}}"], "path": ["spa", "services", "sp2"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 · Webhooks (это шлют системы, не человек)",
+      "item": [
+        {
+          "name": "iiko → статус заказа",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Signature", "value": "sha256=demo" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"event\": \"order.status_changed\", \"externalId\": \"d3f1a8\", \"orderId\": \"{{orderId}}\", \"status\": \"cooking\", \"etaMin\": 25, \"ts\": \"2025-06-01T12:46:03+03:00\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/hooks/iiko", "host": ["{{baseUrl}}"], "path": ["hooks", "iiko"] }
+          }
+        },
+        {
+          "name": "1С:Отель → брони/ключи",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Signature", "value": "sha256=demo" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"event\": \"stay.checked_in\", \"bookingId\": \"{{stayId}}\", \"payload\": { \"room\": \"412\" }, \"ts\": \"2025-06-01T14:05:00+03:00\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/hooks/1c-hotel", "host": ["{{baseUrl}}"], "path": ["hooks", "1c-hotel"] }
+          }
+        },
+        {
+          "name": "Платёжный шлюз → платёж",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Signature", "value": "sha256=demo" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"event\": \"payment.succeeded\", \"paymentId\": \"pay_8812\", \"orderId\": \"{{orderId}}\", \"amount\": 189000, \"ts\": \"2025-06-01T12:47:10+03:00\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/hooks/psp", "host": ["{{baseUrl}}"], "path": ["hooks", "psp"] }
+          }
+        }
+      ]
+    }
+  ]
+}
